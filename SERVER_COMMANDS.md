@@ -1,34 +1,64 @@
 # Server Commands - Fix Prisma Version Issue
 
-## Problem
-The server tried to install Prisma 7.4.0 globally, but the project uses Prisma 6.x which has a different configuration format.
+## ⚠️ CRITICAL: DO NOT USE `npx prisma` ⚠️
 
-## Solution
-Use the **local Prisma version** from `node_modules` instead of the global one.
+The server has Prisma 7.x cached, but your project uses Prisma 6.x.
+
+### ❌ WRONG (will fail):
+```bash
+npx prisma db push          # This uses Prisma 7.x - DON'T USE!
+```
+
+### ✅ CORRECT (use these instead):
+
+#### **Option 1: Use the Automated Script (EASIEST)**
+```bash
+cd /var/www/anypart.lk
+chmod +x setup-database.sh
+./setup-database.sh
+```
+
+#### **Option 2: Use NPM Scripts**
+```bash
+cd /var/www/anypart.lk
+npm run db:push             # Uses local Prisma 6.x
+```
+
+#### **Option 3: Use Local Binary Directly**
+```bash
+cd /var/www/anypart.lk
+./node_modules/.bin/prisma db push
+```
 
 ---
 
-## Commands to Run on Server
+## Complete Setup Commands (Copy & Paste)
 
-### 1. Navigate to Project Directory
 ```bash
+# Navigate to project
 cd /var/www/anypart.lk
+
+# Pull latest changes
+git pull origin main
+
+# Install dependencies
+npm install
+
+# Run the automated database setup
+chmod +x setup-database.sh
+./setup-database.sh
+
+# Build application
+npm run build
+
+# Restart PM2
+pm2 restart anypart-app
+
+# Check logs
+pm2 logs anypart-app --lines 50
 ```
 
-### 2. Check Local Prisma Version
-```bash
-npx prisma --version
-```
-
-If it shows version 7.x, we need to use the project's local version:
-
-```bash
-./node_modules/.bin/prisma --version
-```
-
-This should show version 6.x
-
-### 3. Run Database Push with Local Prisma
+---
 ```bash
 ./node_modules/.bin/prisma db push
 ```
