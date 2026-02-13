@@ -143,7 +143,7 @@ export function ChatWithSellerButton({
                     <DialogHeader>
                         <DialogTitle>Unlock Chat Access?</DialogTitle>
                         <DialogDescription>
-                            This will dedicate **1 Credit** from your balance to unlock this seller's details and enable chat.
+                            This will dedicate **1 Credit** from your balance to unlock this seller&apos;s details and enable chat.
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter className="gap-2 sm:gap-0">

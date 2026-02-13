@@ -4,10 +4,11 @@ import { cookies } from "next/headers"
 
 export async function GET(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const id = parseInt(params.id)
+        const { id: idParam } = await params
+        const id = parseInt(idParam)
         if (isNaN(id)) {
             return NextResponse.json({ error: "Invalid ID" }, { status: 400 })
         }
@@ -52,6 +53,7 @@ export async function GET(
         }
 
         const { password, ...buyerWithoutPassword } = buyer
+        void password // Explicitly mark as intentionally unused
         return NextResponse.json(buyerWithoutPassword)
 
     } catch (error) {

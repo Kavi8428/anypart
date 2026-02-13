@@ -14,15 +14,38 @@ import {
 import { ProductForm } from "./product-form"
 import { getProductMetaData } from "@/app/actions/product-meta"
 
+export type ProductDetail = {
+    id: number;
+    p_name: number;
+    v_model: number;
+    v_year: number;
+    price: number;
+    condition: number;
+    description: string;
+    hash_tag_1: number;
+    hash_tag_2: number;
+    hash_tag_3: number;
+    is_featured: number;
+    image_url_1: string;
+    image_url_2?: string;
+    image_url_3?: string;
+};
+
 interface ProductListProps {
     data: ProductColumn[]
-    rawProducts: any[] // We need raw database records to populate the form fully
+    rawProducts: ProductDetail[]
 }
 
 export function ProductList({ data, rawProducts }: ProductListProps) {
     const [isOpen, setIsOpen] = React.useState(false)
-    const [initialData, setInitialData] = React.useState<any>(null)
-    const [metaData, setMetaData] = React.useState<any>({
+    const [initialData, setInitialData] = React.useState<ProductDetail | null>(null)
+    const [metaData, setMetaData] = React.useState<{
+        pNames: { id: number; name: string }[];
+        vModels: { id: number; name: string; v_brands: { name: string } }[];
+        conditions: { id: number; status: string }[];
+        tags: { id: number; name: string }[];
+        vYears: { id: number; year: number }[];
+    }>({
         pNames: [],
         vModels: [],
         conditions: [],
@@ -38,15 +61,15 @@ export function ProductList({ data, rawProducts }: ProductListProps) {
         fetchMeta()
     }, [])
 
-    const onEdit = (id: number) => {
-        const product = rawProducts.find((p) => p.id === id)
+    const onEdit = React.useCallback((id: number) => {
+        const product = (rawProducts as ProductDetail[]).find((p) => p.id === id)
         // Ensure initialData includes the is_featured property for the form
         // The ProductForm component will then use this to set its internal state for the checkbox.
-        setInitialData(product)
+        setInitialData(product || null)
         setIsOpen(true)
-    }
+    }, [rawProducts])
 
-    const columns = React.useMemo(() => getColumns({ onEdit }), [rawProducts])
+    const columns = React.useMemo(() => getColumns({ onEdit }), [onEdit])
 
     return (
         <div className="space-y-4">

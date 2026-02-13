@@ -17,7 +17,6 @@ import { PartGrid } from "@/components/buyer/category/PartGrid";
 import { ProductList } from "@/components/buyer/category/ProductList";
 import { ChevronRight, ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
 
 export default async function CategoryPage({ searchParams }) {
     // Parse Search Params

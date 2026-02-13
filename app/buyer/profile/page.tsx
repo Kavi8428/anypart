@@ -7,6 +7,8 @@ export const metadata = {
     description: "Manage your anypart.lk buyer profile",
 }
 
+export const dynamic = 'force-dynamic'
+
 export default async function ProfilePage() {
     const buyer = await getBuyerDetails()
 

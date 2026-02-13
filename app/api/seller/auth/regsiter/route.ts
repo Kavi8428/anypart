@@ -28,7 +28,7 @@ export async function POST(request: Request) {
             seller: { id: result.seller?.id, name: result.seller?.name }
         }, { status: 201 });
 
-    } catch (error: any) {
+    } catch {
         return NextResponse.json({ message: 'Internal Server Error' }, { status: 500 });
     }
 }

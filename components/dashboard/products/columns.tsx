@@ -141,7 +141,7 @@ export const getColumns = ({ onEdit }: ColumnProps): ColumnDef<ProductColumn>[] 
                                     try {
                                         await deleteProduct(product.id)
                                         toast.success("Product deleted successfully")
-                                    } catch (error) {
+                                    } catch {
                                         toast.error("Failed to delete product")
                                     }
                                 }

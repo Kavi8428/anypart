@@ -12,7 +12,7 @@ export async function POST(request: Request) {
         }
 
         return NextResponse.json({ success: true });
-    } catch (error: any) {
+    } catch (error) {
         console.error('API Error (Seller Logout):', error);
         return NextResponse.json({ message: 'Internal Server Error' }, { status: 500 });
     }

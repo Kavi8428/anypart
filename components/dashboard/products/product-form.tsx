@@ -19,13 +19,28 @@ import { PaymentForm } from "./payment-form"
 import Image from "next/image"
 
 interface ProductFormProps {
-    initialData?: any
+    initialData?: {
+        id: number;
+        p_name: number;
+        v_model: number;
+        v_year: number;
+        price: number;
+        condition: number;
+        description: string;
+        hash_tag_1: number;
+        hash_tag_2: number;
+        hash_tag_3: number;
+        is_featured: number;
+        image_url_1: string;
+        image_url_2?: string;
+        image_url_3?: string;
+    } | null
     metaData: {
-        pNames: any[]
-        vModels: any[]
-        conditions: any[]
-        tags: any[]
-        vYears: any[]
+        pNames: { id: number; name: string }[]
+        vModels: { id: number; name: string; v_brands: { name: string } }[]
+        conditions: { id: number; status: string }[]
+        tags: { id: number; name: string }[]
+        vYears: { id: number; year: number }[]
     }
     onSuccess: () => void
 }
@@ -52,7 +67,7 @@ export function ProductForm({ initialData, metaData, onSuccess }: ProductFormPro
     const file2Ref = React.useRef<HTMLInputElement>(null)
     const file3Ref = React.useRef<HTMLInputElement>(null)
 
-    const checkValidation = () => {
+    const checkValidation = React.useCallback(() => {
         if (!formRef.current) return
         const formData = new FormData(formRef.current)
 
@@ -69,7 +84,7 @@ export function ProductForm({ initialData, metaData, onSuccess }: ProductFormPro
 
         setIsBasicValid(basic)
         setIsImagesValid(hasImg1)
-    }
+    }, [initialData])
 
     React.useEffect(() => {
         if (initialData) {
@@ -86,7 +101,7 @@ export function ProductForm({ initialData, metaData, onSuccess }: ProductFormPro
             setIsPaid(false)
             setPreviews({ img1: null, img2: null, img3: null })
         }
-    }, [initialData])
+    }, [initialData, checkValidation])
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, key: string) => {
         const file = e.target.files?.[0]
@@ -122,7 +137,7 @@ export function ProductForm({ initialData, metaData, onSuccess }: ProductFormPro
                 alert("Product created successfully")
             }
             onSuccess()
-        } catch (error) {
+        } catch {
             alert("Something went wrong")
         } finally {
             setLoading(false)

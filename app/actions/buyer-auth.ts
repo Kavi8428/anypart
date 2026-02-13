@@ -3,7 +3,12 @@
 import { prisma } from "@/lib/prisma"
 import { cookies } from "next/headers"
 
-export async function buyerLogin(prevState: any, formData: FormData) {
+interface FormState {
+    message: string;
+    errors: Record<string, string[]>;
+}
+
+export async function buyerLogin(prevState: FormState | null, formData: FormData) {
     const userName = formData.get("user_name") as string
     const password = formData.get("password") as string
 
@@ -54,7 +59,7 @@ export async function buyerLogin(prevState: any, formData: FormData) {
     }
 }
 
-export async function buyerRegister(prevState: any, formData: FormData) {
+export async function buyerRegister(prevState: FormState | null, formData: FormData) {
     const fullName = formData.get("full_name") as string
     const email = formData.get("email") as string
     const address = formData.get("address") as string

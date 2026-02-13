@@ -15,12 +15,10 @@ import {
     LogOut,
     Edit,
     Zap,
-    CreditCard,
     History,
     Lock,
     ExternalLink,
-    CheckCircle2,
-    AlertCircle
+    CheckCircle2
 } from "lucide-react"
 import { buyerLogout } from "@/app/actions/buyer-auth"
 import { useRouter, useSearchParams } from "next/navigation"
@@ -28,11 +26,44 @@ import Link from "next/link"
 import { useEffect } from "react"
 
 interface BuyerProfileProps {
-    buyer: any
+    buyer: {
+        full_name: string;
+        user_name: string;
+        verified: number;
+        created_at: Date | string;
+        email: string;
+        tel: number | string;
+        address: string;
+        cities?: { name: string } | null;
+        disctricts?: { name: string } | null;
+    } | null
     credits: number
-    unlockedProducts: any[]
-    paymentHistory: any[]
-    packages: any[]
+    unlockedProducts: {
+        id: number | string;
+        product_id: number;
+        created_at: Date | string;
+        seller_products: {
+            p_name_ref: { name: string } | null;
+            v_model_ref: {
+                name: string;
+                v_brands: { name: string };
+            };
+            v_year_ref?: { year: number } | null;
+            seller_details: { name: string };
+        }
+    }[]
+    paymentHistory: {
+        id: number | string;
+        created_at: Date | string;
+        buyer_amounts: { token_count: number; amount: number };
+        payment_status: { status: string };
+    }[]
+    packages: {
+        id: number;
+        token_count: number;
+        amount: number;
+        validity_period: number;
+    }[]
 }
 
 export function BuyerProfile({
@@ -48,10 +79,11 @@ export function BuyerProfile({
 
     useEffect(() => {
         const tab = searchParams.get("tab")
-        if (tab && ["profile", "credits", "history"].includes(tab)) {
-            setActiveTab(tab)
+        if (tab && ["profile", "credits", "history"].includes(tab) && tab !== activeTab) {
+            const timer = setTimeout(() => setActiveTab(tab), 0)
+            return () => clearTimeout(timer)
         }
-    }, [searchParams])
+    }, [searchParams, activeTab])
 
     const handleLogout = async () => {
         await buyerLogout()
@@ -240,7 +272,7 @@ export function BuyerProfile({
                                     <div className="space-y-3 pt-2">
                                         <div className="flex items-start gap-3 text-xs leading-relaxed text-gray-500">
                                             <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />
-                                            <span>Unlock any seller's contact details for 1 credit per product.</span>
+                                            <span>Unlock any seller&apos;s contact details for 1 credit per product.</span>
                                         </div>
                                         <div className="flex items-start gap-3 text-xs leading-relaxed text-gray-500">
                                             <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />
@@ -340,7 +372,7 @@ export function BuyerProfile({
                                         ) : (
                                             <div className="py-12 text-center text-gray-400">
                                                 <History className="w-12 h-12 mx-auto mb-3 opacity-20" />
-                                                <p className="text-sm">You haven't unlocked any seller contacts yet.</p>
+                                                <p className="text-sm">You haven&apos;t unlocked any seller contacts yet.</p>
                                             </div>
                                         )}
                                     </div>

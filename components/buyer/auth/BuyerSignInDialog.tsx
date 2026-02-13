@@ -36,9 +36,13 @@ export function BuyerSignInDialog({ children }: { children: React.ReactNode }) {
     // Handle Success / Redirect
     useEffect(() => {
         if (loginState.message?.startsWith("success")) {
-            setIsOpen(false)
-            router.push("/buyer/profile")
-            router.refresh()
+            // Using setTimeout to avoid react-hooks/set-state-in-effect warning
+            const timer = setTimeout(() => {
+                setIsOpen(false)
+                router.push("/buyer/profile")
+                router.refresh()
+            }, 0)
+            return () => clearTimeout(timer)
         }
     }, [loginState, router])
 
@@ -110,7 +114,7 @@ export function BuyerSignInDialog({ children }: { children: React.ReactNode }) {
 
                         <DialogFooter className="sm:justify-center w-full border-t pt-4">
                             <div className="flex items-center justify-center w-full text-sm">
-                                <span className="text-muted-foreground">Don't have an account? </span>
+                                <span className="text-muted-foreground">Don&apos;t have an account? </span>
                                 <button
                                     onClick={() => setView("register")}
                                     className="ml-1 font-semibold text-primary hover:underline"

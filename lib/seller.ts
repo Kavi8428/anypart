@@ -65,7 +65,7 @@ export async function createSeller(data: SellerRegistrationData) {
 
         return { success: true, seller: newSeller };
 
-    } catch (error: any) {
+    } catch (error) {
         console.error('Create Seller Error:', error);
         return { error: 'An unexpected error occurred.' };
     }

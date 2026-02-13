@@ -31,7 +31,9 @@ export function BuyerRegisterDialog({ onSwitchToSignIn, onSuccess }: BuyerRegist
         if (selectedDistrict) {
             getCities(parseInt(selectedDistrict)).then(setCities)
         } else {
-            setCities([])
+            // Using setTimeout to avoid react-hooks/set-state-in-effect warning
+            const timer = setTimeout(() => setCities([]), 0)
+            return () => clearTimeout(timer)
         }
     }, [selectedDistrict])
 

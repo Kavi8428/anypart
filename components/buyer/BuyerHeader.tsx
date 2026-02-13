@@ -15,7 +15,7 @@ import {
 import { getSearchSuggestions, getVehicleBrands } from "@/lib/buyer"
 import { BuyerSignInDialog } from "./auth/BuyerSignInDialog"
 
-export function BuyerHeader({ user }: { user?: any }) {
+export function BuyerHeader({ user }: { user?: { id: number; full_name: string } | null }) {
     const router = useRouter()
     const [query, setQuery] = useState("")
     const [selectedBrand, setSelectedBrand] = useState("all")

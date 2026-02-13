@@ -42,9 +42,9 @@ export default function RegisterForm() {
     const [state, dispatch, isPending] = useActionState(sellerRegister, initialState);
     const [showPassword, setShowPassword] = useState(false);
     const [metadata, setMetadata] = useState<{
-        districts: any[];
-        cities: any[];
-        sellerTypes: any[];
+        districts: { id: number; name: string }[];
+        cities: { id: number; name: string; disctrict_id: number }[];
+        sellerTypes: { id: number; type: string }[];
     }>({ districts: [], cities: [], sellerTypes: [] });
     const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
     const [selectedCity, setSelectedCity] = useState<string | null>(null);

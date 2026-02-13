@@ -173,7 +173,24 @@ export async function updateProduct(id: number, formData: FormData) {
         if (payment) payment_id = payment.id;
     }
 
-    const data: any = {
+    interface ProductUpdateData {
+        p_name: number;
+        v_model: number;
+        v_year: number;
+        price: number;
+        condition: number | null;
+        description: string;
+        hash_tag_1: number;
+        hash_tag_2: number | null;
+        hash_tag_3: number | null;
+        is_featured: number;
+        image_url_1?: string;
+        image_url_2?: string | null;
+        image_url_3?: string | null;
+        payment_id?: number | null;
+    }
+
+    const data: ProductUpdateData = {
         p_name,
         v_model,
         v_year,

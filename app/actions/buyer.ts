@@ -171,6 +171,7 @@ export async function getBuyerDetails() {
         if (!session || !session.buyer_details) return null
 
         const { password, ...buyerWithoutPassword } = session.buyer_details
+        void password // Explicitly mark as intentionally unused
         return buyerWithoutPassword
     } catch (error) {
         console.error("Error fetching buyer details:", error)
@@ -194,7 +195,7 @@ export async function getBuyerCredits() {
             }
         })
         return count
-    } catch (error) {
+    } catch {
         return 0
     }
 }

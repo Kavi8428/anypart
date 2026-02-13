@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useTransition } from "react"
+import { useTransition } from "react"
 import { Button } from "@/components/ui/button"
 import { Eye, Lock, Loader2 } from "lucide-react"
 import { unlockSellerDetails } from "@/app/actions/buyer"

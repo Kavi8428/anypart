@@ -4,7 +4,12 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { createSeller } from '@/lib/seller';
 
-export async function sellerLogin(prevState: any, formData: FormData) {
+interface FormState {
+    message: string;
+    errors: Record<string, string[]>;
+}
+
+export async function sellerLogin(prevState: FormState | null, formData: FormData) {
     const phone = formData.get('phone') as string;
     const password = formData.get('password') as string;
 
@@ -37,7 +42,7 @@ export async function sellerLogin(prevState: any, formData: FormData) {
             sameSite: 'lax',
         });
 
-    } catch (error: any) {
+    } catch (error) {
         console.error('Seller login action error:', error);
         return { message: 'Something went wrong. Please try again.', errors: {} };
     }
@@ -70,7 +75,7 @@ export async function sellerLogout() {
     }
 }
 
-export async function sellerRegister(prevState: any, formData: FormData) {
+export async function sellerRegister(prevState: FormState | null, formData: FormData) {
     const name = formData.get('name') as string;
     const br_number = formData.get('br_number') as string;
     const address = formData.get('address') as string;
@@ -113,7 +118,7 @@ export async function sellerRegister(prevState: any, formData: FormData) {
 
         return { message: 'success: Registration successful! Redirecting to login...', errors: {} };
 
-    } catch (error: any) {
+    } catch (error) {
         console.error('Seller registration error:', error);
         return { message: 'Something went wrong. Please try again.', errors: {} };
     }

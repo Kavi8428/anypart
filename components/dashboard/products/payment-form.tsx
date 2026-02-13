@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { CreditCard, ShieldCheck, Loader2, FlaskConical } from "lucide-react"
 import { generatePayHereParams, mockPaymentSuccess } from "@/app/actions/payments"
 import Script from "next/script"
+import Image from "next/image"
 
 interface PaymentFormProps {
     amount: number
@@ -12,7 +13,12 @@ interface PaymentFormProps {
     disabled?: boolean
 }
 
-declare const payhere: any;
+declare const payhere: {
+    onCompleted: (orderId: string) => void;
+    onDismissed: () => void;
+    onError: (error: string) => void;
+    startPayment: (payment: Record<string, unknown>) => void;
+};
 
 export function PaymentForm({ amount, onSuccess, disabled }: PaymentFormProps) {
     const [loading, setLoading] = React.useState(false)
@@ -23,7 +29,7 @@ export function PaymentForm({ amount, onSuccess, disabled }: PaymentFormProps) {
             const params = await generatePayHereParams(amount)
 
             // PayHere Payment Object
-            const payment: any = {
+            const payment: Record<string, unknown> = {
                 ...params,
                 delivery_address: params.address,
                 delivery_city: params.city,
@@ -109,7 +115,7 @@ export function PaymentForm({ amount, onSuccess, disabled }: PaymentFormProps) {
                     </Button>
 
                     <div className="flex justify-center items-center gap-2 pt-2 grayscale opacity-60">
-                        <img src="https://www.payhere.lk/downloads/images/payhere_square_banner.png" alt="PayHere" className="h-10" />
+                        <Image src="https://www.payhere.lk/downloads/images/payhere_square_banner.png" alt="PayHere" width={120} height={40} className="h-10 w-auto" />
                     </div>
 
                     {/* Development Only Mock Button */}

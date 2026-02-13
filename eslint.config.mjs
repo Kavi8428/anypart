@@ -13,6 +13,12 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
   ]),
+  {
+    rules: {
+      // Suppress warnings for third-party library hooks that we don't control
+      "react-hooks/incompatible-library": "off",
+    },
+  },
 ]);
 
 export default eslintConfig;

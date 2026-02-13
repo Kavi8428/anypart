@@ -1,12 +1,11 @@
 'use client';
 
-import { useActionState, useState, useEffect } from 'react';
+import { useActionState, useState } from 'react';
 import { sellerLogin } from '@/app/actions/seller-auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Smartphone, Lock, Eye, EyeOff, Loader2, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
-import Image from 'next/image';
 
 import AuthHeader from '@/components/auth/auth-header';
 

@@ -5,7 +5,6 @@ import { Send, Phone, Video, Info, MoreVertical, Search, ArrowLeft, Paperclip, I
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
 import { BuyerSignInDialog } from "@/components/buyer/auth/BuyerSignInDialog"
 // Import server actions
@@ -58,7 +57,7 @@ export default function ChatPage() {
                 } else if (res.conversations) {
                     setIsAuthenticated(true)
                     // Convert date strings back to Date objects if needed (server actions serialize dates)
-                    const formatted = res.conversations.map((c: any) => ({
+                    const formatted = (res.conversations as Conversation[]).map((c) => ({
                         ...c,
                         lastMessageTime: new Date(c.lastMessageTime)
                     }))
@@ -82,7 +81,7 @@ export default function ChatPage() {
             try {
                 const res = await getConversationMessages(selectedConversationId!)
                 if (res.messages) {
-                    const formatted = res.messages.map((m: any) => ({
+                    const formatted = (res.messages as Message[]).map((m) => ({
                         ...m,
                         timestamp: new Date(m.timestamp)
                     }))

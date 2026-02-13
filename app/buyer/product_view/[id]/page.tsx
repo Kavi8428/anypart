@@ -2,7 +2,7 @@ import { getProductDetails, getBuyerCredits, getBuyerDetails } from "@/app/actio
 import { notFound } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
-import { ArrowLeft, Star, ShoppingCart, Phone, Mail, MapPin, Package, Calendar, Tag } from "lucide-react"
+import { ArrowLeft, Star, ShoppingCart, Package, Calendar, Tag } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ChatWithSellerButton } from "@/components/buyer/ChatWithSellerButton"
 
@@ -182,7 +182,7 @@ export default async function ProductViewPage({ params }: { params: Promise<{ id
                                 productId={productId}
                                 isSignedIn={!!buyer}
                                 hasCredits={credits > 0}
-                                isUnlocked={(product as any).isUnlocked || false}
+                                isUnlocked={(product as { isUnlocked: boolean }).isUnlocked || false}
                             />
                         </div>
 
