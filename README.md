@@ -1,36 +1,85 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AnyPart.lk
 
-## Getting Started
+Next.js app for AnyPart.lk with public product view, seller dashboard, and admin dashboard.
 
-First, run the development server:
+## Tech stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Next.js** (App Router)
+- **shadcn/ui** (sidebar-07 dashboard)
+- **Prisma** + **MySQL**
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Project structure
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Screens
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Route | Description |
+|-------|-------------|
+| `/` | **Public view** – Products listing (anyone can access) |
+| **Seller** | |
+| `/seller` | Seller dashboard overview |
+| `/seller/products` | All products |
+| `/seller/orders` | All orders |
+| `/seller/chats` | Messages |
+| `/seller/settings` | Profile & settings |
+| `/seller/login`, `/seller/register` | Seller auth (no sidebar) |
+| **Admin** | |
+| `/admin` | Admin dashboard overview |
+| `/admin/buyers` | All buyers |
+| `/admin/sellers` | All sellers |
+| `/admin/p-brands` | Product brands |
+| `/admin/p-models` | Product models |
+| `/admin/v-brands` | Vehicle brands |
+| `/admin/v-models` | Vehicle models |
+| `/admin/settings` | General settings |
+| `/admin/login` | Admin auth (no sidebar) |
 
-## Learn More
+### Reusable components
 
-To learn more about Next.js, take a look at the following resources:
+- **`components/public/`** – Public site: `SiteHeader`, `ProductGrid`, `ProductCard`
+- **`components/dashboard/`** – Dashboard shell and sidebars: `DashboardShell`, `SellerSidebar`, `AdminSidebar`
+- **`components/`** – Shared: `AppSidebar`, `NavMain`, `NavProjects`, `NavUser`, `TeamSwitcher`
+- **`components/ui/`** – shadcn UI primitives
+- **`lib/`** – `sidebar-config.ts`, `seller-nav-config.ts`, `admin-nav-config.ts`, `prisma.ts`, `utils.ts`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Prisma
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **`prisma/schema.prisma`** – MySQL schema (Brand, Model, Product placeholders)
+- **`lib/prisma.ts`** – Prisma client singleton for Next.js
 
-## Deploy on Vercel
+## Getting started
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. **Install dependencies**
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+   ```bash
+   npm install
+   ```
+
+2. **Environment**
+
+   Copy `.env.example` to `.env` and set your MySQL `DATABASE_URL`:
+
+   ```env
+   DATABASE_URL="mysql://user:password@localhost:3306/anypart"
+   ```
+
+3. **Database**
+
+   ```bash
+   npx prisma generate
+   npx prisma db push   # or: npx prisma migrate dev
+   ```
+
+4. **Run dev server**
+
+   ```bash
+   npm run dev
+   ```
+
+Open [http://localhost:3000](http://localhost:3000) for the public products page, [http://localhost:3000/seller](http://localhost:3000/seller) for the seller dashboard, and [http://localhost:3000/admin](http://localhost:3000/admin) for the admin dashboard.
+
+## Scripts
+
+- `npm run dev` – Start dev server
+- `npm run build` – Generate Prisma client and build Next.js
+- `npm run start` – Start production server
+- `npm run lint` – Run ESLint

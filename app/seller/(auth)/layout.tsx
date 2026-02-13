@@ -1,0 +1,16 @@
+import AuthFooter from '../../../components/auth/auth-footer';
+
+export default function AuthLayout({
+    children,
+}: {
+    children: React.ReactNode;
+}) {
+    return (
+        <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4 py-8 md:py-16">
+            <div className="w-full flex flex-col items-center">
+                {children}
+                <AuthFooter />
+            </div>
+        </div>
+    );
+}
