@@ -16,7 +16,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { saveProduct, updateProduct } from "@/app/actions/products"
 import { Loader2, Image as ImageIcon, Info, CreditCard } from "lucide-react"
 import { PaymentForm } from "./payment-form"
-import Image from "next/image"
 
 interface ProductFormProps {
     initialData?: {
@@ -365,11 +364,13 @@ export function ProductForm({ initialData, metaData, onSuccess }: ProductFormPro
                                         className="aspect-square relative rounded-xl border-2 border-dashed flex items-center justify-center overflow-hidden bg-muted/30 cursor-pointer hover:bg-muted/50 transition-colors group"
                                     >
                                         {previews[key] ? (
-                                            <Image
+                                            <img
                                                 src={previews[key]!}
                                                 alt={`Preview ${num}`}
-                                                fill
-                                                className="object-cover"
+                                                className="object-cover w-full h-full"
+                                                onError={(e) => {
+                                                    (e.target as HTMLImageElement).src = "/placeholder-product.png";
+                                                }}
                                             />
                                         ) : (
                                             <div className="text-center p-2">

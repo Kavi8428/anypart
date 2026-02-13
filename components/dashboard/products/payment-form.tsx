@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button"
 import { CreditCard, ShieldCheck, Loader2, FlaskConical } from "lucide-react"
 import { generatePayHereParams, mockPaymentSuccess } from "@/app/actions/payments"
 import Script from "next/script"
-import Image from "next/image"
 
 interface PaymentFormProps {
     amount: number
@@ -115,7 +114,8 @@ export function PaymentForm({ amount, onSuccess, disabled }: PaymentFormProps) {
                     </Button>
 
                     <div className="flex justify-center items-center gap-2 pt-2 grayscale opacity-60">
-                        <Image src="https://www.payhere.lk/downloads/images/payhere_square_banner.png" alt="PayHere" width={120} height={40} className="h-10 w-auto" />
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src="https://www.payhere.lk/downloads/images/payhere_square_banner.png" alt="PayHere" width={120} height={40} className="h-10 w-auto" />
                     </div>
 
                     {/* Development Only Mock Button */}
