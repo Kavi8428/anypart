@@ -29,7 +29,11 @@ export default async function SellerProductsPage() {
     if (item.image_url_1) {
       if (item.image_url_1.startsWith('http')) {
         imageUrl = item.image_url_1;
+      } else if (item.image_url_1.startsWith('/')) {
+        // Already has a leading slash (e.g., '/products/img.jpg') — use as-is
+        imageUrl = item.image_url_1;
       } else {
+        // Just a filename (e.g., '1770994521030_y6tfs9f2_8204.jpg') — prepend path
         imageUrl = `/products/${item.image_url_1}`;
       }
     }

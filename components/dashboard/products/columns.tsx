@@ -12,7 +12,6 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { MoreVertical, Edit, Trash } from "lucide-react"
-import Image from "next/image"
 import { deleteProduct } from "@/app/actions/products"
 const toast = {
     success: (msg: string) => alert(msg),
@@ -42,11 +41,14 @@ export const getColumns = ({ onEdit }: ColumnProps): ColumnDef<ProductColumn>[] 
         cell: ({ row }) => {
             return (
                 <div className="relative h-12 w-12 overflow-hidden rounded-md border">
-                    <Image
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
                         src={row.original.image_url || "/placeholder-product.png"}
                         alt={row.original.p_name}
-                        fill
-                        className="object-cover"
+                        className="h-full w-full object-cover"
+                        onError={(e) => {
+                            (e.target as HTMLImageElement).src = "/placeholder-product.png";
+                        }}
                     />
                 </div>
             )
