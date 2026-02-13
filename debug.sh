@@ -83,36 +83,51 @@ check_mysql_mariadb() {
     print_header "Checking MySQL/MariaDB"
     
     MYSQL_FOUND=false
+    DB_TYPE=""
     
     # Check for MySQL
     if command -v mysql &> /dev/null; then
         MYSQL_VERSION=$(mysql --version)
-        print_success "MySQL client is installed: $MYSQL_VERSION"
+        
+        # Determine if it's MySQL or MariaDB
+        if echo "$MYSQL_VERSION" | grep -qi "mariadb"; then
+            print_success "MariaDB client is installed: $MYSQL_VERSION"
+            DB_TYPE="mariadb"
+        else
+            print_success "MySQL client is installed: $MYSQL_VERSION"
+            DB_TYPE="mysql"
+        fi
         MYSQL_FOUND=true
     fi
     
-    # Check for MariaDB
-    if command -v mariadb &> /dev/null; then
+    # Check for MariaDB command
+    if command -v mariadb &> /dev/null && [ "$MYSQL_FOUND" = false ]; then
         MARIADB_VERSION=$(mariadb --version)
         print_success "MariaDB client is installed: $MARIADB_VERSION"
+        DB_TYPE="mariadb"
         MYSQL_FOUND=true
     fi
     
     if [ "$MYSQL_FOUND" = false ]; then
         print_error "Neither MySQL nor MariaDB client is installed"
+        print_info "Install with: sudo apt install mariadb-server mariadb-client"
         return 1
     fi
     
     # Check if MySQL/MariaDB service is running
-    if systemctl is-active --quiet mysql; then
-        print_success "MySQL service is running"
-        print_info "Status: $(systemctl status mysql | grep Active)"
-    elif systemctl is-active --quiet mariadb; then
+    if systemctl is-active --quiet mariadb; then
         print_success "MariaDB service is running"
         print_info "Status: $(systemctl status mariadb | grep Active)"
+    elif systemctl is-active --quiet mysql; then
+        print_success "MySQL service is running"
+        print_info "Status: $(systemctl status mysql | grep Active)"
     else
         print_error "MySQL/MariaDB service is NOT running"
-        print_info "Try: sudo systemctl start mysql (or mariadb)"
+        if [ "$DB_TYPE" = "mariadb" ]; then
+            print_info "Try: sudo systemctl start mariadb"
+        else
+            print_info "Try: sudo systemctl start mysql"
+        fi
         return 1
     fi
     
@@ -127,7 +142,11 @@ check_mysql_mariadb() {
         done
     else
         print_warning "Cannot connect to database (credentials may be required)"
-        print_info "Test manually: mysql -u root -p"
+        if [ "$DB_TYPE" = "mariadb" ]; then
+            print_info "Test manually: sudo mariadb"
+        else
+            print_info "Test manually: sudo mysql"
+        fi
     fi
 }
 

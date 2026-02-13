@@ -1,0 +1,392 @@
+root@srv1294599:/var/www/html/anypart# ls
+app              build_output.txt  components.json  eslint.config.mjs  hooks            lib              lint_output.txt  next.config.ts  package-lock.json   prisma  README.md
+build_final.txt  components        debug.sh         fix.sh             installation.sh  lint_errors.txt  middleware.ts    package.json    postcss.config.mjs  public  tsconfig.json
+root@srv1294599:/var/www/html/anypart# chmod +c debug.sh
+chmod: invalid mode: ‘+c’
+Try 'chmod --help' for more information.
+root@srv1294599:/var/www/html/anypart# chmod +x debug.sh
+root@srv1294599:/var/www/html/anypart# bash debug.sh
+
+╔════════════════════════════════════════════════════════════╗
+║                                                            ║
+║        ANYPART.LK - INSTALLATION DEBUG SCRIPT              ║
+║                                                            ║
+╚════════════════════════════════════════════════════════════╝
+
+
+========================================
+Checking Node.js and NPM
+========================================
+✓ Node.js is installed: v24.13.1
+✓ Node.js version is compatible (>= 18)
+✓ NPM is installed: v11.8.0
+✓ NPM is working correctly
+
+========================================
+Checking MySQL/MariaDB
+========================================
+✗ Neither MySQL nor MariaDB client is installed
+
+========================================
+Checking Nginx
+========================================
+✗ Nginx is NOT installed
+
+========================================
+Checking PM2
+========================================
+✓ PM2 is installed: v6.0.14
+  PM2 Process List:
+┌────┬────────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name           │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼────────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 0  │ anypart-app    │ default     │ N/A     │ fork    │ 0        │ 0      │ 0    │ stopped   │ 0%       │ 0b       │ root     │ disabled │
+└────┴────────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+✗ Application 'anypart-app' is NOT running (stopped/errored)
+  Check logs: pm2 logs anypart-app
+⚠ PM2 startup is NOT configured
+  Configure with: pm2 startup
+✓ PM2 process list is saved
+
+========================================
+Checking Prisma
+========================================
+✓ Application directory found: /var/www/anypart.lk
+✓ Prisma is installed in node_modules
+warn The configuration property `package.json#prisma` is deprecated and will be removed in Prisma 7. Please migrate to a Prisma config file (e.g., `prisma.config.ts`).
+For more information, see: https://pris.ly/prisma-config
+
+  Prisma schema loaded from prisma/schema.prisma
+✓ Prisma schema found: prisma/schema.prisma
+  Database:   provider = "prisma-client-js"
+✗ .env file NOT found
+  Copy from: cp .env.example .env
+✓ Prisma Client is generated
+⚠ Cannot connect to database (check DATABASE_URL)
+
+========================================
+Checking Application
+========================================
+✓ Application directory: /var/www/anypart.lk
+✓ package.json found
+  Application: anypart.lk
+✓ node_modules directory exists
+  Installed packages: ~338
+✓ Next.js build directory exists
+⚠ Application is NOT responding on http://localhost:3000
+  Check if PM2 process is running
+
+========================================
+Checking Git Repository
+========================================
+✓ Git is installed: git version 2.47.3
+✓ Git repository initialized
+✓ Remote origin: https://github.com/Kavi8428/anypart.git
+  Current branch: main
+⚠ There are uncommitted changes
+  Run: git status
+
+========================================
+Summary
+========================================
+Debug check completed!
+
+If any errors were found, please address them before deploying.
+For detailed logs, check:
+  - PM2 logs: pm2 logs anypart-app
+  - Nginx logs: sudo tail -f /var/log/nginx/error.log
+  - System logs: sudo journalctl -xe
+
+root@srv1294599:/var/www/html/anypart# chmod +x fix.sh
+root@srv1294599:/var/www/html/anypart# bash fix.sh
+
+╔════════════════════════════════════════════════════════════╗
+║                                                            ║
+║        ANYPART.LK - INSTALLATION FIX SCRIPT                ║
+║                                                            ║
+╚════════════════════════════════════════════════════════════╝
+
+⚠ This script will attempt to fix common installation issues.
+⚠ It may install packages, modify configurations, and restart services.
+Do you want to proceed?
+Continue? (y/n): y
+
+========================================
+Fixing Node.js and NPM
+========================================
+✓ Node.js version is compatible: v24.13.1
+✓ NPM is available: v11.8.0
+
+========================================
+Fixing MySQL/MariaDB
+========================================
+⚠ MySQL/MariaDB is not installed. Installing MySQL...
+Get:1 file:/etc/apt/mirrors/debian.list Mirrorlist [30 B]
+Get:5 file:/etc/apt/mirrors/debian-security.list Mirrorlist [39 B]
+Hit:7 https://deb.nodesource.com/node_24.x nodistro InRelease
+Hit:2 https://deb.debian.org/debian trixie InRelease
+Hit:3 https://deb.debian.org/debian trixie-updates InRelease
+Hit:4 https://deb.debian.org/debian trixie-backports InRelease
+Hit:6 https://deb.debian.org/debian-security trixie-security InRelease
+Reading package lists... Done
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+Package mysql-server is not available, but is referred to by another package.
+This may mean that the package is missing, has been obsoleted, or
+is only available from another source
+However the following packages replace it:
+  mariadb-server
+
+E: Package 'mysql-server' has no installation candidate
+✗ Failed to install MySQL
+
+========================================
+Fixing Nginx
+========================================
+⚠ Nginx is not installed. Installing...
+Get:1 file:/etc/apt/mirrors/debian.list Mirrorlist [30 B]
+Get:5 file:/etc/apt/mirrors/debian-security.list Mirrorlist [39 B]
+Hit:7 https://deb.nodesource.com/node_24.x nodistro InRelease
+Hit:2 https://deb.debian.org/debian trixie InRelease
+Hit:3 https://deb.debian.org/debian trixie-updates InRelease
+Hit:4 https://deb.debian.org/debian trixie-backports InRelease
+Hit:6 https://deb.debian.org/debian-security trixie-security InRelease
+Reading package lists... Done
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+The following additional packages will be installed:
+  nginx-common
+Suggested packages:
+  fcgiwrap nginx-doc ssl-cert
+The following NEW packages will be installed:
+  nginx nginx-common
+0 upgraded, 2 newly installed, 0 to remove and 0 not upgraded.
+Need to get 718 kB of archives.
+After this operation, 1,891 kB of additional disk space will be used.
+Get:1 file:/etc/apt/mirrors/debian-security.list Mirrorlist [39 B]
+Get:2 https://deb.debian.org/debian-security trixie-security/main amd64 nginx-common all 1.26.3-3+deb13u2 [109 kB]
+Get:3 https://deb.debian.org/debian-security trixie-security/main amd64 nginx amd64 1.26.3-3+deb13u2 [609 kB]
+Fetched 718 kB in 1s (506 kB/s)
+Preconfiguring packages ...
+Selecting previously unselected package nginx-common.
+(Reading database ... 46106 files and directories currently installed.)
+Preparing to unpack .../nginx-common_1.26.3-3+deb13u2_all.deb ...
+Unpacking nginx-common (1.26.3-3+deb13u2) ...
+Selecting previously unselected package nginx.
+Preparing to unpack .../nginx_1.26.3-3+deb13u2_amd64.deb ...
+Unpacking nginx (1.26.3-3+deb13u2) ...
+Setting up nginx-common (1.26.3-3+deb13u2) ...
+Created symlink '/etc/systemd/system/multi-user.target.wants/nginx.service' → '/usr/lib/systemd/system/nginx.service'.
+Setting up nginx (1.26.3-3+deb13u2) ...
+Upgrading binary: nginx.
+Processing triggers for man-db (2.13.1-1) ...
+✓ Nginx installed successfully
+Synchronizing state of nginx.service with SysV service script with /usr/lib/systemd/systemd-sysv-install.
+Executing: /usr/lib/systemd/systemd-sysv-install enable nginx
+✓ Nginx enabled on boot
+⚠ Domain configuration missing. Creating...
+✓ Domain configuration created
+⚠ Domain not enabled. Enabling...
+✓ Domain enabled
+  Removing default Nginx site...
+✓ Nginx configuration is valid
+✓ Nginx reloaded
+
+========================================
+Fixing Application
+========================================
+  Pulling latest changes...
+Saved working directory and index state WIP on main: 333a027 fixed the linting issues
+remote: Enumerating objects: 5, done.
+remote: Counting objects: 100% (5/5), done.
+remote: Compressing objects: 100% (3/3), done.
+remote: Total 4 (delta 1), reused 4 (delta 1), pack-reused 0 (from 0)
+Unpacking objects: 100% (4/4), 7.01 KiB | 1.40 MiB/s, done.
+From https://github.com/Kavi8428/anypart
+ * branch            main       -> FETCH_HEAD
+   333a027..12bcbd8  main       -> origin/main
+Updating 333a027..12bcbd8
+Fast-forward
+ debug.sh | 427 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ fix.sh   | 498 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 925 insertions(+)
+ create mode 100644 debug.sh
+ create mode 100644 fix.sh
+✓ Repository updated
+  Updating dependencies...
+
+> anypart.lk@0.1.0 postinstall
+> prisma generate
+
+warn The configuration property `package.json#prisma` is deprecated and will be removed in Prisma 7. Please migrate to a Prisma config file (e.g., `prisma.config.ts`).
+For more information, see: https://pris.ly/prisma-config
+
+Prisma schema loaded from prisma/schema.prisma
+
+✔ Generated Prisma Client (v6.19.2) to ./node_modules/@prisma/client in 360ms
+
+Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
+
+Tip: Want to turn off tips and other hints? https://pris.ly/tip-4-nohints
+
+
+up to date, audited 595 packages in 3s
+
+156 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+✓ Dependencies updated
+  Building application...
+
+> anypart.lk@0.1.0 build
+> prisma generate && next build
+
+warn The configuration property `package.json#prisma` is deprecated and will be removed in Prisma 7. Please migrate to a Prisma config file (e.g., `prisma.config.ts`).
+For more information, see: https://pris.ly/prisma-config
+
+Prisma schema loaded from prisma/schema.prisma
+
+✔ Generated Prisma Client (v6.19.2) to ./node_modules/@prisma/client in 354ms
+
+Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
+
+Tip: Interested in query caching in just a few lines of code? Try Accelerate today! https://pris.ly/tip-3-accelerate
+
+▲ Next.js 16.1.6 (Turbopack)
+
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+  Creating an optimized production build ...
+✓ Compiled successfully in 20.8s
+✓ Finished TypeScript in 10.1s
+✓ Collecting page data using 1 worker in 552.9ms
+prisma:error
+Invalid `prisma.seller_products.findMany()` invocation:
+
+
+error: Environment variable not found: DATABASE_URL.
+  -->  schema.prisma:7
+   |
+ 6 |   provider = "mysql"
+ 7 |   url      = env("DATABASE_URL")
+   |
+
+Validation Error Count: 1
+Error fetching featured products: Error [PrismaClientInitializationError]:
+Invalid `prisma.seller_products.findMany()` invocation:
+
+
+error: Environment variable not found: DATABASE_URL.
+  -->  schema.prisma:7
+   |
+ 6 |   provider = "mysql"
+ 7 |   url      = env("DATABASE_URL")
+   |
+
+Validation Error Count: 1
+    at <unknown> (-->  schema.prisma:7)
+    at async f (.next/server/chunks/ssr/_e8753b1e._.js:2:388)
+    at async g (.next/server/chunks/ssr/[root-of-the-server]__7087897e._.js:1:3809) {
+  clientVersion: '6.19.2',
+  errorCode: undefined,
+  retryable: undefined
+}
+✓ Generating static pages using 1 worker (28/28) in 574.0ms
+✓ Finalizing page optimization in 12.0ms
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ○ /admin
+├ ○ /admin/buyers
+├ ○ /admin/login
+├ ○ /admin/p-brands
+├ ○ /admin/p-models
+├ ○ /admin/sellers
+├ ○ /admin/settings
+├ ○ /admin/v-brands
+├ ○ /admin/v-models
+├ ƒ /api/app-details
+├ ƒ /api/buyer/details/[id]
+├ ƒ /api/payments/notify
+├ ƒ /api/products/[id]
+├ ƒ /api/seller/auth/login
+├ ƒ /api/seller/auth/logout
+├ ƒ /api/seller/auth/regsiter
+├ ƒ /buyer
+├ ƒ /buyer/categories
+├ ƒ /buyer/chat
+├ ƒ /buyer/product_view/[id]
+├ ƒ /buyer/profile
+├ ○ /seller
+├ ○ /seller/chats
+├ ○ /seller/login
+├ ○ /seller/orders
+├ ƒ /seller/products
+├ ○ /seller/register
+└ ○ /seller/settings
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
+✓ Application built successfully
+
+========================================
+Fixing Prisma
+========================================
+⚠ .env file missing. Creating from .env.example...
+✗ .env.example not found
+
+========================================
+Fixing PM2
+========================================
+⚠ Application is stopped. Restarting...
+Use --update-env to update environment variables
+[PM2] Applying action restartProcessId on app [anypart-app](ids: [ 0 ])
+[PM2] [anypart-app](0) ✓
+┌────┬────────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name           │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼────────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 0  │ anypart-app    │ default     │ N/A     │ fork    │ 64568    │ 0s     │ 0    │ online    │ 0%       │ 14.1mb   │ root     │ disabled │
+└────┴────────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+✓ Application restarted
+[PM2] Saving current process list...
+[PM2] Successfully saved in /root/.pm2/dump.pm2
+✓ PM2 process list saved
+  Configuring PM2 startup...
+
+========================================
+Fixing Permissions
+========================================
+  Setting proper ownership...
+✓ Ownership set to www-data
+✓ Permissions fixed
+
+========================================
+Fix Summary
+========================================
+Fix process completed!
+
+Next steps:
+  1. Edit .env file and set DATABASE_URL
+     nano /var/www/anypart.lk/.env
+  2. Run database migrations
+     cd /var/www/anypart.lk && npx prisma migrate deploy
+  3. Restart the application
+     pm2 restart anypart-app
+  4. Check application status
+     pm2 logs anypart-app
+  5. Visit your site
+     http://anypart.lk
+
+Run debug script to verify:
+  ./debug.sh
+
+root@srv1294599:/var/www/html/anypart# mysql -u root
+-bash: mysql: command not found
+root@srv1294599:/var/www/html/anypart#

@@ -109,40 +109,66 @@ fix_mysql_mariadb() {
     
     # Check if either is installed
     if ! command -v mysql &> /dev/null && ! command -v mariadb &> /dev/null; then
-        print_warning "MySQL/MariaDB is not installed. Installing MySQL..."
+        print_warning "MySQL/MariaDB is not installed. Installing..."
         
         apt-get update
-        apt-get install -y mysql-server
         
-        if command -v mysql &> /dev/null; then
-            print_success "MySQL installed successfully"
+        # Try MariaDB first (default on modern Debian/Ubuntu)
+        if apt-cache show mariadb-server &> /dev/null; then
+            print_info "Installing MariaDB (MySQL-compatible)..."
+            apt-get install -y mariadb-server mariadb-client
+            
+            if command -v mariadb &> /dev/null || command -v mysql &> /dev/null; then
+                print_success "MariaDB installed successfully"
+            else
+                print_error "Failed to install MariaDB"
+                return 1
+            fi
+        # Fall back to MySQL if MariaDB not available
+        elif apt-cache show mysql-server &> /dev/null; then
+            print_info "Installing MySQL..."
+            apt-get install -y mysql-server
+            
+            if command -v mysql &> /dev/null; then
+                print_success "MySQL installed successfully"
+            else
+                print_error "Failed to install MySQL"
+                return 1
+            fi
         else
-            print_error "Failed to install MySQL"
+            print_error "Neither MySQL nor MariaDB packages are available"
+            print_info "You may need to add a repository manually"
             return 1
         fi
+    else
+        print_success "MySQL/MariaDB is already installed"
     fi
     
     # Check if service is running
     if ! systemctl is-active --quiet mysql && ! systemctl is-active --quiet mariadb; then
         print_warning "MySQL/MariaDB service is not running. Starting..."
         
-        if systemctl start mysql 2>/dev/null; then
-            print_success "MySQL service started"
-        elif systemctl start mariadb 2>/dev/null; then
+        if systemctl start mariadb 2>/dev/null; then
             print_success "MariaDB service started"
+        elif systemctl start mysql 2>/dev/null; then
+            print_success "MySQL service started"
         else
             print_error "Failed to start database service"
+            print_info "Try manually: sudo systemctl start mariadb"
             return 1
         fi
+    else
+        print_success "Database service is running"
     fi
     
     # Enable service on boot
-    if systemctl enable mysql 2>/dev/null || systemctl enable mariadb 2>/dev/null; then
+    if systemctl enable mariadb 2>/dev/null || systemctl enable mysql 2>/dev/null; then
         print_success "Database service enabled on boot"
     fi
     
     # Secure installation reminder
-    print_info "Remember to run: sudo mysql_secure_installation"
+    print_warning "IMPORTANT: Run this command to secure your database:"
+    print_info "sudo mysql_secure_installation"
 }
 
 fix_nginx() {
