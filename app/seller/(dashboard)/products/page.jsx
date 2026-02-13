@@ -1,8 +1,26 @@
 import { getProducts } from "@/app/actions/products";
 import { ProductList } from "@/components/dashboard/products/product-list";
+import { redirect } from "next/navigation";
 
 export default async function SellerProductsPage() {
-  const products = await getProducts();
+  let products;
+  try {
+    products = await getProducts();
+  } catch (error) {
+    console.error('[Products Page] Error:', error);
+    // If unauthorized, redirect to login
+    if (error.message === 'Unauthorized') {
+      redirect('/seller/login');
+    }
+    // For other errors, show a fallback
+    return (
+      <div className="flex-col">
+        <div className="flex-1 space-y-4 p-8 pt-6">
+          <p className="text-red-500">Failed to load products. Please try again.</p>
+        </div>
+      </div>
+    );
+  }
 
   const formattedProducts = products.map((item) => {
     let imageUrl = "/placeholder-product.png";

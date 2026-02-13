@@ -32,23 +32,39 @@ export async function getSellerSession() {
     const cookieStore = await cookies();
     const sessionToken = cookieStore.get('seller_session')?.value;
 
-    if (!sessionToken) return null;
+    if (!sessionToken) {
+        console.log('[AUTH] No seller_session cookie found');
+        return null;
+    }
 
-    const session = await prisma.seller_sessions.findFirst({
-        where: {
-            token: sessionToken,
-            token_expire_at: { gt: new Date() },
-        },
-        include: {
-            seller_details: {
-                include: {
-                    seller_types: true,
+    console.log('[AUTH] seller_session cookie found, querying DB...');
+
+    try {
+        const session = await prisma.seller_sessions.findFirst({
+            where: {
+                token: sessionToken,
+                token_expire_at: { gt: new Date() },
+            },
+            include: {
+                seller_details: {
+                    include: {
+                        seller_types: true,
+                    },
                 },
             },
-        },
-    });
+        });
 
-    return session;
+        if (!session) {
+            console.log('[AUTH] No valid session found in DB (expired or token mismatch)');
+        } else {
+            console.log('[AUTH] Session found for seller_id:', session.seller_id);
+        }
+
+        return session;
+    } catch (error) {
+        console.error('[AUTH] Error querying seller session:', error);
+        return null;
+    }
 }
 
 // --- 3. Buyer Authentication ---
