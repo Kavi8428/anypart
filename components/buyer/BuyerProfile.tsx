@@ -35,7 +35,7 @@ interface BuyerProfileProps {
         tel: number | string;
         address: string;
         cities?: { name: string } | null;
-        disctricts?: { name: string } | null;
+        districts?: { name: string } | null;
     } | null
     credits: number
     unlockedProducts: {
@@ -245,7 +245,7 @@ export function BuyerProfile({
                                                 <div className="flex items-start gap-3 px-3 py-2.5 bg-gray-50/50 rounded-lg border border-gray-100">
                                                     <MapPin className="w-4 h-4 text-gray-400 mt-0.5" />
                                                     <span className="text-sm font-medium text-gray-700">
-                                                        {buyer.address}, {buyer.cities?.name}, {buyer.disctricts?.name}
+                                                        {buyer.address}, {buyer.cities?.name}, {buyer.districts?.name}
                                                     </span>
                                                 </div>
                                             </div>

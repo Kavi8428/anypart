@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma"
 
 export async function getDistricts() {
     try {
-        return await prisma.disctricts.findMany({
+        return await prisma.districts.findMany({
             orderBy: { name: "asc" },
             select: { id: true, name: true },
         })
@@ -17,7 +17,7 @@ export async function getDistricts() {
 export async function getCities(districtId?: number) {
     try {
         return await prisma.cities.findMany({
-            where: districtId ? { disctrict_id: districtId } : {},
+            where: districtId ? { district_id: districtId } : {},
             orderBy: { name: "asc" },
             select: { id: true, name: true },
         })
@@ -26,3 +26,4 @@ export async function getCities(districtId?: number) {
         return []
     }
 }
+

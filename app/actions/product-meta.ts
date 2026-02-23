@@ -4,9 +4,20 @@ import { prisma } from '@/lib/prisma';
 
 export async function getProductMetaData() {
     try {
-        const [pNames, vModels, conditions, tags, vYears] = await Promise.all([
+        const [pNames, vModels, conditions, tags, vYears, featuredPriceRecord] = await Promise.all([
             prisma.p_names.findMany({
                 orderBy: { name: 'asc' },
+                select: {
+                    id: true,
+                    name: true,
+                    part_brand: true,
+                    p_brands: {
+                        select: {
+                            id: true,
+                            name: true,
+                        },
+                    },
+                },
             }),
             prisma.v_models.findMany({
                 include: { v_brands: true },
@@ -21,6 +32,30 @@ export async function getProductMetaData() {
             prisma.v_years.findMany({
                 orderBy: { year: 'desc' },
             }),
+            prisma.promotion_price_list.findFirst({
+                where: {
+                    OR: [
+                        {
+                            promotions: {
+                                name: {
+                                    contains: 'Featured',
+                                }
+                            }
+                        },
+                        {
+                            description: {
+                                contains: 'Featured',
+                            }
+                        }
+                    ]
+                },
+                orderBy: {
+                    created_at: 'desc'
+                },
+                select: {
+                    price: true
+                }
+            })
         ]);
 
         return {
@@ -29,6 +64,7 @@ export async function getProductMetaData() {
             conditions,
             tags,
             vYears,
+            featuredPrice: featuredPriceRecord?.price || 5000,
         };
     } catch (error) {
         console.error('Error fetching product meta data:', error);
@@ -38,6 +74,7 @@ export async function getProductMetaData() {
             conditions: [],
             tags: [],
             vYears: [],
+            featuredPrice: 5000,
         };
     }
 }

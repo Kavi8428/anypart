@@ -8,57 +8,57 @@ datasource db {
 }
 
 model app_admin_role_permissions {
-  id              Int             @id
+  id              Int             @id @default(autoincrement())
   role_id         Int
   page_link       String?         @db.Text
   can_view        Boolean         @default(false)
   can_create      Boolean         @default(false)
   can_update      Boolean         @default(false)
   can_delete      Boolean         @default(false)
-  created_at      DateTime        @default(now()) @db.Timestamp(0)
-  updated_at      DateTime        @default(now()) @db.Timestamp(0)
+  created_at      DateTime        @default(now())
+  updated_at      DateTime        @updatedAt
   app_admin_roles app_admin_roles @relation(fields: [role_id], references: [id], onDelete: Cascade, map: "fk_admin_role")
 
-  @@index([role_id], map: "fk_admin_role")
+  @@index([role_id], map: "idx_admin_role")
 }
 
 model app_admin_roles {
   id                         Int                          @id @default(autoincrement())
   role                       String                       @db.VarChar(100)
   description                String?                      @db.Text
-  updated_at                 DateTime                     @default(now()) @db.Timestamp(0)
+  updated_at                 DateTime                     @updatedAt
   app_admin_role_permissions app_admin_role_permissions[]
   app_admins                 app_admins[]
 }
 
 model app_admins {
-  id                 Int                  @id
+  id                 Int                  @id @default(autoincrement())
   full_name          String?              @db.VarChar(200)
   user_name          String?              @unique @db.VarChar(100)
   password           String?              @db.Text
   email              String?              @unique @db.VarChar(200)
-  tel                Int?
+  tel                String?              @db.VarChar(20)
   address            String?              @db.Text
   department         Int?
   role               Int?
   NIC                String?              @unique @db.VarChar(20)
-  updated_at         DateTime             @default(now()) @db.Timestamp(0)
-  created_at         DateTime             @default(now()) @db.Timestamp(0)
+  updated_at         DateTime             @updatedAt
+  created_at         DateTime             @default(now())
   app_admin_sessions app_admin_sessions[]
   app_departments    app_departments?     @relation(fields: [department], references: [id], onDelete: Cascade, map: "fk_department")
   app_admin_roles    app_admin_roles?     @relation(fields: [role], references: [id], onDelete: Cascade, map: "fk_roles")
 
-  @@index([department], map: "fk_department")
-  @@index([role], map: "fk_roles")
+  @@index([department], map: "idx_department")
+  @@index([role], map: "idx_roles")
   @@index([full_name])
   @@index([email])
 }
 
 model app_departments {
   id          Int          @id @default(autoincrement())
-  name        String       @default("Development") @db.Text
+  name        String       @default("Development") @db.VarChar(100)
   description String?      @db.Text
-  updated_at  DateTime     @default(now()) @db.Timestamp(0)
+  updated_at  DateTime     @updatedAt
   app_admins  app_admins[]
 }
 
@@ -68,13 +68,13 @@ model app_details {
   address     String?  @db.Text
   logo_url    String?  @db.Text
   br_number   String?  @db.VarChar(100)
-  tel1        Int?     @default(704973144)
-  tel2        Int?
+  tel1        String?  @default("0704973144") @db.VarChar(20)
+  tel2        String?  @db.VarChar(20)
   fb_link     String?  @db.Text
   tiktok_link String?  @db.Text
   bio         String?  @db.Text
-  created_at  DateTime @default(now()) @db.Timestamp(0)
-  updated_at  DateTime @default(now()) @db.Timestamp(0)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
 }
 
 model buyer_amounts {
@@ -82,8 +82,8 @@ model buyer_amounts {
   amount          Float            @db.Float
   token_count     Int
   validity_period Int
-  created_at      DateTime         @default(now()) @db.Timestamp(0)
-  updated_at      DateTime         @default(now()) @db.Timestamp(0)
+  created_at      DateTime         @default(now())
+  updated_at      DateTime         @updatedAt
   buyer_payments  buyer_payments[]
 }
 
@@ -93,23 +93,24 @@ model buyer_details {
   address           String              @db.Text
   city              Int
   district          Int
-  tel               Int
+  tel               String              @db.VarChar(20)
   email             String              @unique @db.VarChar(200)
   verified          Int                 @default(0) @db.TinyInt
   user_name         String              @unique @db.VarChar(100)
   password          String              @db.Text
-  created_at        DateTime            @default(now()) @db.Timestamp(0)
-  updated_at        DateTime            @default(now()) @db.Timestamp(0)
+  created_at        DateTime            @default(now())
+  updated_at        DateTime            @updatedAt
+  deleted_at        DateTime?
   cities            cities              @relation(fields: [city], references: [id], onDelete: Cascade, map: "fk_buyer_city")
-  disctricts        disctricts          @relation(fields: [district], references: [id], onDelete: Cascade, map: "fk_buyer_district")
+  districts         districts           @relation(fields: [district], references: [id], onDelete: Cascade, map: "fk_buyer_district")
   buyer_order_token buyer_order_token[]
   buyer_payments    buyer_payments[]
+  buyer_sessions    buyer_sessions[]
   conversations     conversations[]
   orders            orders[]
-  buyer_sessions    buyer_sessions[]
 
-  @@index([city], map: "fk_buyer_city")
-  @@index([district], map: "fk_buyer_district")
+  @@index([city], map: "idx_buyer_city")
+  @@index([district], map: "idx_buyer_district")
   @@index([full_name])
   @@index([email])
 }
@@ -121,16 +122,16 @@ model buyer_order_token {
   token          String         @db.Text
   status         Int            @db.TinyInt
   order_id       Int?
-  expiry_at      DateTime       @default(now()) @db.Timestamp(0)
-  created_at     DateTime       @default(now()) @db.Timestamp(0)
-  updated_at     DateTime       @default(now()) @db.Timestamp(0)
+  expiry_at      DateTime       @default(now())
+  created_at     DateTime       @default(now())
+  updated_at     DateTime       @updatedAt
   buyer_details  buyer_details? @relation(fields: [buyer_id], references: [id], onDelete: Cascade, map: "fk_buyer_token")
   orders         orders?        @relation(fields: [order_id], references: [id], onDelete: Cascade, map: "fk_order_token")
   buyer_payments buyer_payments @relation(fields: [payment_id], references: [id], onDelete: Cascade, map: "fk_payment_id")
 
-  @@index([payment_id], map: "fk_payment_id")
-  @@index([buyer_id], map: "fk_buyer_token")
-  @@index([order_id], map: "fk_order_token")
+  @@index([payment_id], map: "idx_payment_id")
+  @@index([buyer_id], map: "idx_buyer_token")
+  @@index([order_id], map: "idx_order_token")
 }
 
 model buyer_payments {
@@ -138,28 +139,28 @@ model buyer_payments {
   buyer_id          Int
   amount_id         Int
   status_id         Int
-  created_at        DateTime            @default(now()) @db.Timestamp(0)
-  updated_at        DateTime            @default(now()) @db.Timestamp(0)
+  created_at        DateTime            @default(now())
+  updated_at        DateTime            @updatedAt
   buyer_order_token buyer_order_token[]
   buyer_amounts     buyer_amounts       @relation(fields: [amount_id], references: [id], onDelete: Cascade, map: "fk_amount_id")
   payment_status    payment_status      @relation(fields: [status_id], references: [id], onDelete: Cascade, map: "fk_buyer_status_id")
   buyer_details     buyer_details       @relation(fields: [buyer_id], references: [id], onDelete: Cascade, map: "fk_payment_buyer")
 
-  @@index([buyer_id], map: "fk_payment_buyer")
-  @@index([amount_id], map: "fk_amount_id")
-  @@index([status_id], map: "fk_buyer_status_id")
+  @@index([buyer_id], map: "idx_payment_buyer")
+  @@index([amount_id], map: "idx_amount_id")
+  @@index([status_id], map: "idx_buyer_status_id")
 }
 
 model cities {
   id             Int              @id @default(autoincrement())
   name           String           @db.VarChar(100)
-  disctrict_id   Int
-  updated_at     DateTime         @default(now()) @db.Timestamp(0)
+  district_id    Int
+  updated_at     DateTime         @updatedAt
   buyer_details  buyer_details[]
-  disctricts     disctricts       @relation(fields: [disctrict_id], references: [id], onDelete: Cascade, map: "fk_disctrict")
+  districts      districts        @relation(fields: [district_id], references: [id], onDelete: Cascade, map: "fk_district")
   seller_details seller_details[]
 
-  @@index([disctrict_id], map: "fk_disctrict")
+  @@index([district_id], map: "idx_district")
   @@index([name])
 }
 
@@ -167,7 +168,7 @@ model conditions {
   id              Int               @id @default(autoincrement())
   status          String            @default("new") @db.VarChar(100)
   description     String            @db.Text
-  updated_at      DateTime          @default(now()) @db.Timestamp(0)
+  updated_at      DateTime          @updatedAt
   seller_products seller_products[]
 }
 
@@ -176,23 +177,23 @@ model conversations {
   buyer_id       Int
   seller_id      Int
   order_id       Int
-  created_at     DateTime       @default(now()) @db.Timestamp(0)
-  updated_at     DateTime       @default(now()) @db.Timestamp(0)
+  created_at     DateTime       @default(now())
+  updated_at     DateTime       @updatedAt
   buyer_details  buyer_details  @relation(fields: [buyer_id], references: [id], onDelete: Cascade, map: "fk_conv_buyer")
   orders         orders         @relation(fields: [order_id], references: [id], onDelete: Cascade, map: "fk_conv_order")
   seller_details seller_details @relation(fields: [seller_id], references: [id], onDelete: Cascade, map: "fk_conv_seller")
   messages       messages[]
 
-  @@index([buyer_id], map: "fk_conv_buyer")
-  @@index([seller_id], map: "fk_conv_seller")
-  @@index([order_id], map: "fk_conv_order")
+  @@index([buyer_id], map: "idx_conv_buyer")
+  @@index([seller_id], map: "idx_conv_seller")
+  @@index([order_id], map: "idx_conv_order")
 }
 
-model disctricts {
+model districts {
   id             Int              @id @default(autoincrement())
   name           String           @db.VarChar(100)
-  created_at     DateTime         @default(now()) @db.Timestamp(0)
-  updated_at     DateTime         @default(now()) @db.Timestamp(0)
+  created_at     DateTime         @default(now())
+  updated_at     DateTime         @updatedAt
   buyer_details  buyer_details[]
   cities         cities[]
   seller_details seller_details[]
@@ -204,33 +205,33 @@ model hash_tags {
   id                                                    Int               @id @default(autoincrement())
   name                                                  String            @db.VarChar(100)
   description                                           String            @db.Text
-  created_at                                            DateTime          @default(now()) @db.Timestamp(0)
-  updated_at                                            DateTime?         @default(now()) @db.Timestamp(0)
+  created_at                                            DateTime          @default(now())
+  updated_at                                            DateTime?         @updatedAt
   seller_products_seller_products_hash_tag_1Tohash_tags seller_products[] @relation("seller_products_hash_tag_1Tohash_tags")
   seller_products_seller_products_hash_tag_2Tohash_tags seller_products[] @relation("seller_products_hash_tag_2Tohash_tags")
   seller_products_seller_products_hash_tag_3Tohash_tags seller_products[] @relation("seller_products_hash_tag_3Tohash_tags")
 }
 
 model media {
-  id          Int         @id
+  id          Int         @id @default(autoincrement())
   message_id  Int
-  url         Int
+  url         String      @db.Text
   type        Int
   file_name   String      @db.VarChar(100)
   file_size   Int
-  created_at  DateTime    @default(now()) @db.Timestamp(0)
+  created_at  DateTime    @default(now())
   messages    messages    @relation(fields: [message_id], references: [id], onDelete: Cascade, map: "fk_media_msg")
   media_types media_types @relation(fields: [type], references: [id], onDelete: Cascade, map: "fk_media_type")
 
-  @@index([type], map: "fk_media_type")
-  @@index([message_id], map: "fk_media_msg")
+  @@index([type], map: "idx_media_type")
+  @@index([message_id], map: "idx_media_msg")
 }
 
 model media_types {
   id         Int      @id @default(autoincrement())
   type       String   @db.VarChar(50)
-  extention  String?  @db.VarChar(50)
-  created_at DateTime @default(now()) @db.Timestamp(0)
+  extension  String?  @db.VarChar(50)
+  created_at DateTime @default(now())
   media      media[]
 }
 
@@ -241,19 +242,23 @@ model messages {
   receiver_id     Int
   content         String        @db.Text
   is_read         Int           @default(0) @db.TinyInt
-  created_at      DateTime      @default(now()) @db.Timestamp(0)
-  updated_at      DateTime      @default(now()) @db.Timestamp(0)
+  is_deleted      Int           @default(0) @db.TinyInt
+  is_edited       Int           @default(0) @db.TinyInt
+  edited_at       DateTime?
+  created_at      DateTime      @default(now())
+  updated_at      DateTime      @updatedAt
+  sender_type     Int           @default(0) @db.TinyInt
   media           media[]
   conversations   conversations @relation(fields: [conversation_id], references: [id], onDelete: Cascade, map: "fk_msg_conv")
 
-  @@index([conversation_id], map: "fk_msg_conv")
+  @@index([conversation_id], map: "idx_msg_conv")
 }
 
 model order_status {
   id             Int              @id @default(autoincrement())
   status         String           @db.VarChar(50)
   definition     String           @db.Text
-  updated_at     DateTime         @default(now()) @db.Timestamp(0)
+  updated_at     DateTime         @updatedAt
   order_tracking order_tracking[]
 }
 
@@ -262,29 +267,31 @@ model order_tracking {
   order_id            Int
   status              Int
   order_payment_token Int?
-  created_at          DateTime     @default(now()) @db.Timestamp(0)
-  updated_at          DateTime     @default(now()) @db.Timestamp(0)
+  created_at          DateTime     @default(now())
+  updated_at          DateTime     @updatedAt
   orders              orders       @relation(fields: [order_id], references: [id], onDelete: Cascade, map: "fk_order_id")
   order_status        order_status @relation(fields: [status], references: [id], onDelete: Cascade, map: "fk_order_status")
 
-  @@index([order_id], map: "fk_order_id")
-  @@index([status], map: "fk_order_status")
+  @@index([order_id], map: "idx_order_id")
+  @@index([status], map: "idx_order_status")
 }
 
 model orders {
   id                Int                 @id @default(autoincrement())
   buyer_id          Int
   product_id        Int
-  created_at        DateTime            @default(now()) @db.Timestamp(0)
-  updated_at        DateTime            @default(now()) @db.Timestamp(0)
+  is_viewed         Int                 @default(0) @db.TinyInt
+  created_at        DateTime            @default(now())
+  updated_at        DateTime            @updatedAt
   buyer_order_token buyer_order_token[]
   conversations     conversations[]
   order_tracking    order_tracking[]
   buyer_details     buyer_details       @relation(fields: [buyer_id], references: [id], onDelete: Cascade, map: "fk_buyer_id")
   seller_products   seller_products     @relation(fields: [product_id], references: [id], onDelete: Cascade, map: "fk_product_id")
 
-  @@index([buyer_id], map: "fk_buyer_id")
-  @@index([product_id], map: "fk_product_id")
+  @@unique([buyer_id, product_id], name: "idx_buyer_product_unique")
+  @@index([buyer_id], map: "idx_buyer_id")
+  @@index([product_id], map: "idx_product_id")
 }
 
 model p_brands {
@@ -292,113 +299,121 @@ model p_brands {
   name        String    @db.VarChar(100)
   logo_url    String    @db.Text
   description String?   @db.Text
-  created_at  DateTime  @default(now()) @db.Timestamp(0)
-  updated_at  DateTime  @default(now()) @db.Timestamp(0)
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
   p_names     p_names[]
 
   @@index([name])
 }
 
 model p_names {
-  id              Int               @id
+  id              Int               @id @default(autoincrement())
   name            String            @db.VarChar(100)
   part_brand      Int
-  created_at      DateTime          @default(now()) @db.Timestamp(0)
-  updated_at      DateTime          @default(now()) @db.Timestamp(0)
+  created_at      DateTime          @default(now())
+  updated_at      DateTime          @updatedAt
   p_brands        p_brands          @relation(fields: [part_brand], references: [id], onDelete: Cascade, map: "fk_part_brand")
   seller_products seller_products[]
 
-  @@index([part_brand], map: "fk_part_brand")
+  @@index([part_brand], map: "idx_part_brand")
   @@index([name])
 }
 
 model payment_status {
-  id             Int              @id @default(autoincrement())
-  status         String           @db.VarChar(100)
-  definition     String?          @db.Text
-  created_at     DateTime         @default(now()) @db.Timestamp(0)
-  updated_at     DateTime         @default(now()) @db.Timestamp(0)
-  buyer_payments buyer_payments[]
+  id              Int               @id @default(autoincrement())
+  status          String            @db.VarChar(100)
+  definition      String?           @db.Text
+  created_at      DateTime          @default(now())
+  updated_at      DateTime          @updatedAt
+  buyer_payments  buyer_payments[]
+  seller_payments seller_payments[]
 }
 
 model seller_details {
-  id                 Int                  @id
-  name               String               @db.VarChar(100)
-  logo_url           String?              @db.Text
-  br_number          String?              @db.Text
-  address            String               @db.Text
-  city               Int?
-  disctrict          Int?
-  tel1               Int
-  tel2               Int?
-  seller_type        Int?
-  verified           Int?                 @default(0) @db.TinyInt
-  user_name          String               @unique(map: "user_name") @db.VarChar(100)
-  password           String               @db.Text
-  created_at         DateTime             @default(now()) @db.Timestamp(0)
-  updated_at         DateTime             @default(now()) @db.Timestamp(0)
-  conversations      conversations[]
-  seller_sessions    seller_sessions[]
-  cities             cities?              @relation(fields: [city], references: [id], onDelete: Cascade, map: "fk_seller_city")
-  disctricts         disctricts?          @relation(fields: [disctrict], references: [id], onDelete: Cascade, map: "fk_seller_disctrict")
-  seller_types       seller_types?        @relation(fields: [seller_type], references: [id], onDelete: Cascade, map: "fk_seller_type")
-  seller_products    seller_products[]
-  seller_payments seller_payments[]
+  id                     Int               @id @default(autoincrement())
+  name                   String            @db.VarChar(100)
+  logo_url               String?           @db.Text
+  br_number              String?           @db.Text
+  address                String            @db.Text
+  city                   Int?
+  district               Int?
+  tel1                   String            @db.VarChar(20)
+  tel2                   String?           @db.VarChar(20)
+  seller_type            Int?
+  verified               Int?              @default(0) @db.TinyInt
+  user_name              String            @unique(map: "user_name") @db.VarChar(100)
+  password               String            @db.Text
+  created_at             DateTime          @default(now())
+  updated_at             DateTime          @updatedAt
+  deleted_at             DateTime?
+  last_password_reset_at DateTime?
+  conversations          conversations[]
+  cities                 cities?           @relation(fields: [city], references: [id], onDelete: Cascade, map: "fk_seller_city")
+  districts              districts?        @relation(fields: [district], references: [id], onDelete: Cascade, map: "fk_seller_district")
+  seller_types           seller_types?     @relation(fields: [seller_type], references: [id], onDelete: Cascade, map: "fk_seller_type")
+  seller_payments        seller_payments[]
+  seller_products        seller_products[]
+  seller_sessions        seller_sessions[]
 
-  @@index([disctrict], map: "fk_seller_disctrict")
-  @@index([city], map: "fk_seller_city")
-  @@index([seller_type], map: "fk_seller_type")
+  @@index([district], map: "idx_seller_district")
+  @@index([city], map: "idx_seller_city")
+  @@index([seller_type], map: "idx_seller_type")
   @@index([name])
   @@index([user_name])
 }
 
 model seller_products {
-  id                                              Int            @id @default(autoincrement())
-  seller_id                                       Int
-  p_name                                          Int
-  v_model                                         Int
-  hash_tag_1                                      Int
-  hash_tag_2                                      Int?
-  hash_tag_3                                      Int?
-  image_url_1                                     String         @db.Text
-  image_url_2                                     String?        @db.Text
-  image_url_3                                     String?        @db.Text
-  price                                           Float
-  condition                                       Int?
-  description                                     String         @default("Description") @db.Text
-  is_featured                                     Int            @default(0) @db.TinyInt
-  payment_id                                      Int?
-  created_at                                      DateTime       @default(now()) @db.Timestamp(0)
-  updated_at                                      DateTime       @default(now()) @db.Timestamp(0)
-  v_year                                          Int?
-  orders                                          orders[]
-  condition_ref                                   conditions?    @relation(fields: [condition], references: [id], onDelete: Cascade, map: "fk_condition")
-  hash_tag_1_ref                                  hash_tags      @relation("seller_products_hash_tag_1Tohash_tags", fields: [hash_tag_1], references: [id], onDelete: Cascade, map: "fk_hash_tag_1")
-  hash_tag_2_ref                                  hash_tags?     @relation("seller_products_hash_tag_2Tohash_tags", fields: [hash_tag_2], references: [id], onDelete: Cascade, map: "fk_hash_tag_2")
-  hash_tag_3_ref                                  hash_tags?     @relation("seller_products_hash_tag_3Tohash_tags", fields: [hash_tag_3], references: [id], onDelete: Cascade, map: "fk_hash_tag_3")
-  p_name_ref                                      p_names        @relation(fields: [p_name], references: [id], onDelete: Cascade, map: "fk_p_name")
-  seller_details                                  seller_details @relation(fields: [seller_id], references: [id], onDelete: Cascade, map: "fk_product_seller")
-  
-  v_model_ref                                     v_models       @relation(fields: [v_model], references: [id], onDelete: Cascade, map: "fk_v_model")
-  v_year_ref                                      v_years?       @relation(fields: [v_year], references: [id], onDelete: Cascade, map: "fk_product_year")
+  id              Int              @id @default(autoincrement())
+  seller_id       Int
+  p_name          Int
+  v_model         Int
+  hash_tag_1      Int
+  hash_tag_2      Int?
+  hash_tag_3      Int?
+  image_url_1     String           @db.VarChar(255)
+  image_url_2     String?          @db.VarChar(255)
+  image_url_3     String?          @db.VarChar(255)
+  price           Float?           @db.Float
+  condition       Int?
+  description     String           @db.Text
+  is_featured     Int              @default(0) @db.TinyInt
+  payment_id      Int?
+  created_at      DateTime         @default(now())
+  updated_at      DateTime         @updatedAt
+  v_year          Int?
+  deleted_at      DateTime?
+  orders          orders[]
+  condition_ref   conditions?      @relation(fields: [condition], references: [id], onDelete: Cascade, map: "fk_condition")
+  v_model_ref     v_models         @relation(fields: [v_model], references: [id], onDelete: Cascade, map: "fk_product_model")
+  p_name_ref      p_names          @relation(fields: [p_name], references: [id], onDelete: Cascade, map: "fk_product_name")
+  seller_payments seller_payments? @relation(fields: [payment_id], references: [id], map: "fk_product_payment")
+  seller_details  seller_details   @relation(fields: [seller_id], references: [id], onDelete: Cascade, map: "fk_product_seller")
+  v_year_ref      v_years?         @relation(fields: [v_year], references: [id], onDelete: Cascade, map: "fk_product_year")
+  hash_tag_1_ref  hash_tags        @relation("seller_products_hash_tag_1Tohash_tags", fields: [hash_tag_1], references: [id], onDelete: Cascade, map: "fk_tag1")
+  hash_tag_2_ref  hash_tags?       @relation("seller_products_hash_tag_2Tohash_tags", fields: [hash_tag_2], references: [id], onDelete: Cascade, map: "fk_tag2")
+  hash_tag_3_ref  hash_tags?       @relation("seller_products_hash_tag_3Tohash_tags", fields: [hash_tag_3], references: [id], onDelete: Cascade, map: "fk_tag3")
 
-  @@index([condition], map: "fk_condition")
-  @@index([hash_tag_1], map: "fk_hash_tag_1")
-  @@index([hash_tag_2], map: "fk_hash_tag_2")
-  @@index([hash_tag_3], map: "fk_hash_tag_3")
-  @@index([p_name], map: "fk_p_name")
-  @@index([v_model], map: "fk_v_model")
-  @@index([v_year], map: "fk_product_year")
-  @@index([seller_id], map: "fk_product_seller")
-  @@index([price])
+  @@index([p_name], map: "idx_p_name")
+  @@index([v_model], map: "idx_v_model")
+  @@index([v_year], map: "idx_v_year")
+  @@index([hash_tag_1], map: "idx_tag1")
+  @@index([hash_tag_2], map: "idx_tag2")
+  @@index([hash_tag_3], map: "idx_tag3")
+  @@index([condition], map: "idx_condition")
+  @@index([seller_id], map: "idx_seller")
+  @@index([payment_id], map: "idx_payment")
+  @@index([created_at], map: "idx_created_at")
+  @@index([is_featured, created_at], map: "idx_featured_created")
+  @@index([v_model, p_name, v_year], map: "idx_product_search")
+  @@index([seller_id, is_featured], map: "idx_seller_featured")
 }
 
 model seller_types {
   id             Int              @id @default(autoincrement())
   type           String           @db.VarChar(100)
   description    String           @db.Text
-  created_at     DateTime         @default(now()) @db.Timestamp(0)
-  updated_at     DateTime         @default(now()) @db.Timestamp(0)
+  created_at     DateTime         @default(now())
+  updated_at     DateTime         @updatedAt
   seller_details seller_details[]
 }
 
@@ -407,8 +422,8 @@ model v_brands {
   name        String     @db.VarChar(100)
   logo_url    String?    @db.Text
   description String?    @db.Text
-  created_at  DateTime   @default(now()) @db.Timestamp(0)
-  updated_at  DateTime   @default(now()) @db.Timestamp(0)
+  created_at  DateTime   @default(now())
+  updated_at  DateTime   @updatedAt
   v_models    v_models[]
 
   @@index([name])
@@ -420,37 +435,37 @@ model v_models {
   v_brand         Int
   year            Int?
   description     String?           @db.Text
-  created_at      DateTime          @default(now()) @db.Timestamp(0)
-  updated_at      DateTime          @default(now()) @db.Timestamp(0)
+  created_at      DateTime          @default(now())
+  updated_at      DateTime          @updatedAt
   seller_products seller_products[]
   v_years         v_years?          @relation(fields: [year], references: [id], onDelete: Cascade, map: "fk_model_year")
   v_brands        v_brands          @relation(fields: [v_brand], references: [id], onDelete: Cascade, map: "fk_v_brand")
 
-  @@index([year], map: "fk_model_year")
-  @@index([v_brand], map: "fk_v_brand")
+  @@index([year], map: "idx_model_year")
+  @@index([v_brand], map: "idx_v_brand")
   @@index([name])
 }
 
 model v_years {
-  id         Int        @id @default(autoincrement())
-  year       Int
-  created_at DateTime   @default(now()) @db.Timestamp(0)
-  updated_at      DateTime          @default(now()) @db.Timestamp(0)
-  v_models        v_models[]
+  id              Int               @id @default(autoincrement())
+  year            Int
+  created_at      DateTime          @default(now())
+  updated_at      DateTime          @updatedAt
   seller_products seller_products[]
+  v_models        v_models[]
 }
 
 model app_admin_sessions {
-  id              Int            @id @default(autoincrement())
+  id              Int        @id @default(autoincrement())
   admin_id        Int
-  token           String         @db.Text
-  token_expire_at DateTime       @default(now()) @db.Timestamp(0)
-  last_visit_page String         @db.VarChar(100)
-  created_at      DateTime       @default(now()) @db.Timestamp(0)
-  updated_at      DateTime       @default(now()) @db.Timestamp(0)
+  token           String     @db.Text
+  token_expire_at DateTime   @default(now())
+  last_visit_page String     @db.VarChar(100)
+  created_at      DateTime   @default(now())
+  updated_at      DateTime   @updatedAt
   app_admins      app_admins @relation(fields: [admin_id], references: [id], onDelete: Cascade, map: "rel_session_admin")
 
-  @@index([admin_id], map: "fk_admin_id")
+  @@index([admin_id], map: "idx_admin_id")
   @@index([token(length: 255)], map: "session_token_idx")
 }
 
@@ -458,13 +473,13 @@ model buyer_sessions {
   id              Int           @id @default(autoincrement())
   buyer_id        Int
   token           String        @db.Text
-  token_expire_at DateTime      @default(now()) @db.Timestamp(0)
+  token_expire_at DateTime      @default(now())
   last_visit_page String        @db.VarChar(200)
-  created_at      DateTime      @default(now()) @db.Timestamp(0)
-  updated_at      DateTime      @default(now()) @db.Timestamp(0)
+  created_at      DateTime      @default(now())
+  updated_at      DateTime      @updatedAt
   buyer_details   buyer_details @relation(fields: [buyer_id], references: [id], onDelete: Cascade, map: "rel_buyer_session")
 
-  @@index([buyer_id], map: "fk_buyer_session_id")
+  @@index([buyer_id], map: "idx_buyer_session_id")
   @@index([token(length: 255)], map: "buyer_session_token_idx")
 }
 
@@ -472,31 +487,104 @@ model seller_sessions {
   id              Int            @id @default(autoincrement())
   seller_id       Int
   token           String         @db.Text
-  token_expire_at DateTime       @default(now()) @db.Timestamp(0)
+  token_expire_at DateTime       @default(now())
   last_visit_page String?        @db.VarChar(200)
-  created_at      DateTime       @default(now()) @db.Timestamp(0)
-  updated_at      DateTime       @default(now()) @db.Timestamp(0)
+  created_at      DateTime       @default(now())
+  updated_at      DateTime       @updatedAt
   seller_details  seller_details @relation(fields: [seller_id], references: [id], onDelete: Cascade, map: "rel_seller_session")
 
-  @@index([seller_id], map: "fk_seller_session_id")
+  @@index([seller_id], map: "idx_seller_session_id")
   @@index([token(length: 255)], map: "seller_session_token_idx")
 }
 
 model seller_payments {
-  id              Int            @id @default(autoincrement())
+  id              Int               @id @default(autoincrement())
   seller_id       Int
-  product_id      Int?
-  order_id        String         @db.VarChar(100)
+  order_id        String            @unique @db.VarChar(100)
   amount          Float
-  currency        String         @default("LKR") @db.VarChar(10)
-  status          String         @default("PENDING") @db.VarChar(20)
+  currency        String            @default("LKR") @db.VarChar(10)
+  status_id       Int
   payhere_status  Int?
   payhere_amount  Float?
-  method          String?        @db.VarChar(50)
-  created_at      DateTime       @default(now()) @db.Timestamp(0)
-  updated_at      DateTime       @default(now()) @db.Timestamp(0)
-  seller_details  seller_details @relation(fields: [seller_id], references: [id], onDelete: Cascade, map: "fk_payment_seller")
+  method_id       Int?
+  created_at      DateTime          @default(now())
+  updated_at      DateTime          @updatedAt
+  seller_details  seller_details    @relation(fields: [seller_id], references: [id], onDelete: Cascade, map: "fk_payment_seller")
+  method_ref      payment_methods?  @relation(fields: [method_id], references: [id], onDelete: Cascade, map: "fk_seller_payment_method")
+  status_ref      payment_status    @relation(fields: [status_id], references: [id], onDelete: Cascade, map: "fk_seller_payment_status")
+  seller_products seller_products[]
 
-  @@index([seller_id], map: "fk_payment_seller")
-  @@index([order_id])
+  @@index([seller_id], map: "idx_payment_seller")
+  @@index([status_id], map: "idx_seller_payment_status")
+  @@index([method_id], map: "idx_seller_payment_method")
+}
+
+model otp_verifications {
+  id         Int      @id @default(autoincrement())
+  phone      String   @db.VarChar(20)
+  code       String   @db.VarChar(10)
+  expires_at DateTime @default(now()) @db.Timestamp(0)
+  created_at DateTime @default(now()) @db.Timestamp(0)
+  verified   Int      @default(0) @db.TinyInt
+
+  @@index([phone])
+}
+
+model payment_methods {
+  id              Int               @id @default(autoincrement())
+  method          String            @db.VarChar(100)
+  definition      String?           @db.Text
+  created_at      DateTime          @default(now()) @db.Timestamp(0)
+  seller_payments seller_payments[]
+}
+
+model promotion_price_list {
+  id           Int        @id @default(autoincrement())
+  promotion_id Int
+  price        Float
+  description  String     @db.Text
+  created_at   DateTime   @default(now()) @db.Timestamp(0)
+  updated_at   DateTime?  @default(now()) @db.Timestamp(0)
+  promotions   promotions @relation(fields: [promotion_id], references: [id], onDelete: Cascade, map: "fk_promotion")
+
+  @@index([promotion_id], map: "fk_promotion")
+}
+
+model promotions {
+  id                   Int                    @id @default(autoincrement())
+  name                 String                 @db.VarChar(100)
+  description          String?                @db.Text
+  start_at             DateTime?              @db.Timestamp(0)
+  end_at               DateTime?              @db.Timestamp(0)
+  created_at           DateTime               @default(now()) @db.Timestamp(0)
+  updated_at           DateTime               @default(now()) @db.Timestamp(0)
+  promotion_price_list promotion_price_list[]
+}
+
+model user_ratings {
+  id          Int      @id @default(autoincrement())
+  rater_id    Int
+  rater_type  Int      @default(0) @db.TinyInt // 0 = Buyer, 1 = Seller
+  rated_id    Int
+  rated_type  Int      @default(0) @db.TinyInt // 0 = Buyer, 1 = Seller
+  rating      Int      @db.TinyInt // 1-5
+  comment     String?  @db.Text
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  @@index([rated_id, rated_type], map: "idx_rated_user")
+}
+
+model user_reports {
+  id            Int      @id @default(autoincrement())
+  reporter_id   Int
+  reporter_type Int      @default(0) @db.TinyInt // 0 = Buyer, 1 = Seller
+  reported_id   Int
+  reported_type Int      @default(0) @db.TinyInt // 0 = Buyer, 1 = Seller
+  reason        String   @db.Text
+  status        String   @default("pending") @db.VarChar(50)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  @@index([reported_id, reported_type], map: "idx_reported_user")
 }

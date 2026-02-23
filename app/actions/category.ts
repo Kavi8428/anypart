@@ -1,18 +1,36 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
+import { unstable_cache } from 'next/cache';
 
-export async function getBrands() {
-    try {
-        const brands = await prisma.v_brands.findMany({
-            orderBy: { name: 'asc' },
-        });
-        return brands;
-    } catch (error) {
-        console.error('Error fetching brands:', error);
-        return [];
+// Cache configuration
+const CACHE_TAGS = {
+    BRANDS: 'brands',
+    MODELS: 'models',
+    YEARS: 'years',
+    PARTS: 'parts'
+};
+
+const REVALIDATE_TIME = 3600; // 1 hour
+
+export const getBrands = unstable_cache(
+    async () => {
+        try {
+            const brands = await prisma.v_brands.findMany({
+                orderBy: { name: 'asc' },
+            });
+            return brands;
+        } catch (error) {
+            console.error('Error fetching brands:', error);
+            return [];
+        }
+    },
+    ['get-brands'],
+    {
+        tags: [CACHE_TAGS.BRANDS],
+        revalidate: REVALIDATE_TIME
     }
-}
+);
 
 export async function getBrandDetails(brandId: number) {
     try {
@@ -26,63 +44,77 @@ export async function getBrandDetails(brandId: number) {
     }
 }
 
-export async function getModelsByBrand(brandId: number) {
-    try {
-        // Group by name to show unique model names
-        const models = await prisma.v_models.groupBy({
-            by: ['name'],
-            where: {
-                v_brand: brandId,
-            },
-            orderBy: {
-                name: 'asc',
-            },
-            _count: {
-                _all: true
-            }
-        });
-
-        // We might want to fetch one example to get a description if needed, 
-        // but groupBy results only contain the grouped fields.
-        return models;
-    } catch (error) {
-        console.error('Error fetching models:', error);
-        return [];
-    }
-}
-
-export async function getYearsByModelName(brandId: number, modelName: string) {
-    try {
-        // Find all 'v_models' entries that match the brand and name
-        // effectively finding all year variants for this model
-        const variants = await prisma.v_models.findMany({
-            where: {
-                v_brand: brandId,
-                name: modelName,
-            },
-            include: {
-                v_years: true,
-            },
-            orderBy: {
-                v_years: {
-                    year: 'desc',
+export const getModelsByBrand = unstable_cache(
+    async (brandId: number) => {
+        try {
+            // Group by name to show unique model names
+            const models = await prisma.v_models.groupBy({
+                by: ['name'],
+                where: {
+                    v_brand: brandId,
                 },
-            },
-        });
+                orderBy: {
+                    name: 'asc',
+                },
+                _count: {
+                    _all: true
+                }
+            });
 
-        // Map to a cleaner structure: { vModelId, year, yearId }
-        return variants
-            .filter(v => v.v_years) // Ensure v_years exists
-            .map(v => ({
-                vModelId: v.id,
-                year: v.v_years!.year,
-                yearId: v.v_years!.id
-            }));
-    } catch (error) {
-        console.error('Error fetching years for model:', error);
-        return [];
+            // We might want to fetch one example to get a description if needed, 
+            // but groupBy results only contain the grouped fields.
+            return models;
+        } catch (error) {
+            console.error('Error fetching models:', error);
+            return [];
+        }
+    },
+    ['get-models-by-brand'],
+    {
+        tags: [CACHE_TAGS.MODELS],
+        revalidate: REVALIDATE_TIME
     }
-}
+);
+
+export const getYearsByModelName = unstable_cache(
+    async (brandId: number, modelName: string) => {
+        try {
+            // Find all 'v_models' entries that match the brand and name
+            // effectively finding all year variants for this model
+            const variants = await prisma.v_models.findMany({
+                where: {
+                    v_brand: brandId,
+                    name: modelName,
+                },
+                include: {
+                    v_years: true,
+                },
+                orderBy: {
+                    v_years: {
+                        year: 'desc',
+                    },
+                },
+            });
+
+            // Map to a cleaner structure: { vModelId, year, yearId }
+            return variants
+                .filter(v => v.v_years) // Ensure v_years exists
+                .map(v => ({
+                    vModelId: v.id,
+                    year: v.v_years!.year,
+                    yearId: v.v_years!.id
+                }));
+        } catch (error) {
+            console.error('Error fetching years for model:', error);
+            return [];
+        }
+    },
+    ['get-years-by-model'],
+    {
+        tags: [CACHE_TAGS.YEARS],
+        revalidate: REVALIDATE_TIME
+    }
+);
 
 export async function getVModelDetails(vModelId: number) {
     try {
@@ -106,6 +138,7 @@ export async function getPartNamesByVModel(vModelId: number, yearId?: number) {
         const products = await prisma.seller_products.findMany({
             where: {
                 v_model: vModelId,
+                deleted_at: null,
                 ...(yearId && { v_year: yearId })
             },
             include: {
@@ -144,6 +177,7 @@ export async function getProductsByVModelAndPart(vModelId: number, pNameId: numb
             where: {
                 v_model: vModelId,
                 p_name: pNameId,
+                deleted_at: null,
                 ...(yearId && { v_year: yearId })
             },
             include: {
@@ -156,7 +190,13 @@ export async function getProductsByVModelAndPart(vModelId: number, pNameId: numb
                 },
                 v_year_ref: true,
                 condition_ref: true,
-                seller_details: true,
+                seller_details: {
+                    select: {
+                        id: true,
+                        name: true,
+                        logo_url: true,
+                    }
+                },
             },
             orderBy: {
                 created_at: 'desc',
@@ -172,6 +212,7 @@ export async function searchProducts(query: string, brandId?: number) {
     try {
         const products = await prisma.seller_products.findMany({
             where: {
+                deleted_at: null,
                 AND: [
                     brandId ? { v_model_ref: { v_brand: brandId } } : {},
                     {
@@ -195,7 +236,13 @@ export async function searchProducts(query: string, brandId?: number) {
                 },
                 v_year_ref: true,
                 condition_ref: true,
-                seller_details: true,
+                seller_details: {
+                    select: {
+                        id: true,
+                        name: true,
+                        logo_url: true,
+                    }
+                },
             },
             orderBy: {
                 created_at: "desc",

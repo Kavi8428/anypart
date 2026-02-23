@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useState, useEffect } from 'react';
+import { useActionState, useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -35,15 +35,16 @@ import {
 
 const initialState = {
     message: '',
-    errors: {},
+    errors: {} as Record<string, string[]>,
 };
 
 export default function RegisterForm() {
     const [state, dispatch, isPending] = useActionState(sellerRegister, initialState);
+    const formRef = useRef<HTMLFormElement>(null);
     const [showPassword, setShowPassword] = useState(false);
     const [metadata, setMetadata] = useState<{
         districts: { id: number; name: string }[];
-        cities: { id: number; name: string; disctrict_id: number }[];
+        cities: { id: number; name: string; district_id: number }[];
         sellerTypes: { id: number; type: string }[];
     }>({ districts: [], cities: [], sellerTypes: [] });
     const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
@@ -60,15 +61,28 @@ export default function RegisterForm() {
     const [otpStep, setOtpStep] = useState<'confirm' | 'otp'>('confirm');
     const [otp, setOtp] = useState('');
     const [otpStatus, setOtpStatus] = useState<'idle' | 'sending' | 'verifying' | 'error' | 'success'>('idle');
+    const [otpErrorMessage, setOtpErrorMessage] = useState('');
+    const [timeLeft, setTimeLeft] = useState(0);
+
+    // Timer logic
+    useEffect(() => {
+        if (timeLeft > 0) {
+            const timerId = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
+            return () => clearTimeout(timerId);
+        }
+    }, [timeLeft]);
 
     async function handleSendOtp() {
         setOtpStatus('sending');
+        setOtpErrorMessage('');
         const res = await sendSellerOTP(phone);
-        if (res.success) {
+        if (res?.success) {
             setOtpStep('otp');
             setOtpStatus('idle');
+            setTimeLeft(60); // Start 60s countdown
         } else {
-            setOtpStatus('error'); // Handle error better?
+            setOtpStatus('error');
+            setOtpErrorMessage(res?.message || 'Failed to send OTP.');
         }
     }
 
@@ -79,6 +93,11 @@ export default function RegisterForm() {
             setIsVerified(true);
             setIsDialogOpen(false);
             setOtpStatus('success');
+
+            // Auto-submit the form after successful verification
+            setTimeout(() => {
+                formRef.current?.requestSubmit();
+            }, 100);
         } else {
             setOtpStatus('error');
         }
@@ -88,7 +107,6 @@ export default function RegisterForm() {
         if (!isVerified) {
             e.preventDefault();
             if (phone.length < 9) {
-                // simple length check
                 alert("Please enter a valid phone number");
                 return;
             }
@@ -128,8 +146,9 @@ export default function RegisterForm() {
     );
 
     const availableCities = metadata.cities?.filter(
-        city => selectedDistrict && city.disctrict_id === parseInt(selectedDistrict)
+        city => selectedDistrict && city.district_id === parseInt(selectedDistrict)
     ) || [];
+
 
     const filteredCities = availableCities.filter((c) =>
         c.name?.toLowerCase().includes(cityQuery.toLowerCase())
@@ -141,7 +160,7 @@ export default function RegisterForm() {
 
     return (
         <div className="w-full max-w-[1400px] bg-white p-6 md:p-10 rounded-3xl shadow-2xl shadow-slate-200/50 border border-slate-100 animate-in fade-in zoom-in duration-500">
-            <form action={dispatch} onSubmit={handleFormSubmit} className="space-y-8">
+            <form ref={formRef} action={dispatch} onSubmit={handleFormSubmit} className="space-y-8">
                 {/* Status Message */}
                 {state?.message && (
                     <div className={`p-4 rounded-xl text-sm font-bold border animate-in fade-in zoom-in-95 ${state.message.includes('success')
@@ -168,6 +187,7 @@ export default function RegisterForm() {
                                     </div>
                                     <Input name="name" placeholder="E.g. Auto Zone Motors" className="pl-10 h-11 rounded-xl bg-slate-50 border-slate-200 focus:bg-white focus:border-[#FF6200] transition-all" required />
                                 </div>
+                                {state?.errors?.name && <p className="text-red-500 text-xs font-medium pl-1">{state.errors.name[0]}</p>}
                             </div>
                             <div className="space-y-1">
                                 <label className="text-xs font-bold text-slate-700 ml-1 uppercase">BR Number</label>
@@ -177,6 +197,7 @@ export default function RegisterForm() {
                                     </div>
                                     <Input name="br_number" placeholder="Registration number" className="pl-10 h-11 rounded-xl bg-slate-50 border-slate-200 focus:bg-white focus:border-[#FF6200] transition-all" />
                                 </div>
+                                {state?.errors?.br_number && <p className="text-red-500 text-xs font-medium pl-1">{state.errors.br_number[0]}</p>}
                             </div>
                             <div className="space-y-1">
                                 <label className="text-xs font-bold text-slate-700 ml-1 uppercase">Seller Type *</label>
@@ -210,6 +231,7 @@ export default function RegisterForm() {
                                     </ComboboxContent>
                                 </Combobox>
                                 <input type="hidden" name="seller_type" value={selectedSellerType || ''} />
+                                {state?.errors?.seller_type && <p className="text-red-500 text-xs font-medium pl-1">{state.errors.seller_type[0]}</p>}
                             </div>
                         </div>
                     </div>
@@ -248,6 +270,7 @@ export default function RegisterForm() {
                                         </div>
                                     )}
                                 </div>
+                                {state?.errors?.tel1 && <p className="text-red-500 text-xs font-medium pl-1">{state.errors.tel1[0]}</p>}
                             </div>
                             <div className="space-y-1">
                                 <label className="text-xs font-bold text-slate-700 ml-1 uppercase">Secondary Phone (Optional)</label>
@@ -257,6 +280,7 @@ export default function RegisterForm() {
                                     </div>
                                     <Input name="tel2" placeholder="Alternative number" type="tel" className="pl-10 h-11 rounded-xl bg-slate-50 border-slate-200 focus:bg-white focus:border-[#FF6200] transition-all" />
                                 </div>
+                                {state?.errors?.tel2 && <p className="text-red-500 text-xs font-medium pl-1">{state.errors.tel2[0]}</p>}
                             </div>
                         </div>
                     </div>
@@ -276,6 +300,7 @@ export default function RegisterForm() {
                                     </div>
                                     <Input name="address" placeholder="No, Street, Area" className="pl-10 h-11 rounded-xl bg-slate-50 border-slate-200 focus:bg-white focus:border-[#FF6200] transition-all" required />
                                 </div>
+                                {state?.errors?.address && <p className="text-red-500 text-xs font-medium pl-1">{state.errors.address[0]}</p>}
                             </div>
                             <div className="space-y-1">
                                 <label className="text-xs font-bold text-slate-700 ml-1 uppercase">District *</label>
@@ -311,6 +336,7 @@ export default function RegisterForm() {
                                     </ComboboxContent>
                                 </Combobox>
                                 <input type="hidden" name="district" value={selectedDistrict || ''} />
+                                {state?.errors?.district && <p className="text-red-500 text-xs font-medium pl-1">{state.errors.district[0]}</p>}
                             </div>
                             <div className="space-y-1">
                                 <label className="text-xs font-bold text-slate-700 ml-1 uppercase">City *</label>
@@ -346,6 +372,7 @@ export default function RegisterForm() {
                                     </ComboboxContent>
                                 </Combobox>
                                 <input type="hidden" name="city" value={selectedCity || ''} />
+                                {state?.errors?.city && <p className="text-red-500 text-xs font-medium pl-1">{state.errors.city[0]}</p>}
                             </div>
                         </div>
                     </div>
@@ -366,9 +393,15 @@ export default function RegisterForm() {
                                     <Input
                                         name="password"
                                         type={showPassword ? "text" : "password"}
-                                        placeholder="••••••••"
+                                        placeholder="••••"
+                                        maxLength={4}
+                                        inputMode="numeric"
+                                        pattern="[0-9]*"
                                         className="pl-10 pr-10 h-11 rounded-xl bg-slate-50 border-slate-200 focus:bg-white focus:border-[#FF6200] transition-all"
                                         required
+                                        onInput={(e) => {
+                                            e.currentTarget.value = e.currentTarget.value.replace(/[^0-9]/g, '');
+                                        }}
                                     />
                                     <button
                                         type="button"
@@ -378,6 +411,7 @@ export default function RegisterForm() {
                                         {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                                     </button>
                                 </div>
+                                {state?.errors?.password && <p className="text-red-500 text-xs font-medium pl-1">{state.errors.password[0]}</p>}
                             </div>
                             <div className="space-y-1">
                                 <label className="text-xs font-bold text-slate-700 ml-1 uppercase">Confirm Password *</label>
@@ -389,10 +423,17 @@ export default function RegisterForm() {
                                         name="confirm_password"
                                         type={showPassword ? "text" : "password"}
                                         placeholder="Re-type password"
+                                        maxLength={4}
+                                        inputMode="numeric"
+                                        pattern="[0-9]*"
                                         className="pl-10 h-11 rounded-xl bg-slate-50 border-slate-200 focus:bg-white focus:border-[#FF6200] transition-all"
                                         required
+                                        onInput={(e) => {
+                                            e.currentTarget.value = e.currentTarget.value.replace(/[^0-9]/g, '');
+                                        }}
                                     />
                                 </div>
+                                {state?.errors?.confirm_password && <p className="text-red-500 text-xs font-medium pl-1">{state.errors.confirm_password[0]}</p>}
                             </div>
                         </div>
                     </div>
@@ -434,21 +475,28 @@ export default function RegisterForm() {
                         <DialogTitle>{otpStep === 'confirm' ? 'Verify Phone Number' : 'Enter OTP'}</DialogTitle>
                         <DialogDescription>
                             {otpStep === 'confirm'
-                                ? `We will send a verification code to ${phone}. Is this correct?`
+                                ? (otpStatus === 'error' ? '' : `We will send a verification code to ${phone}. Is this correct?`)
                                 : `Enter the code sent to ${phone}.`
                             }
                         </DialogDescription>
                     </DialogHeader>
 
                     {otpStep === 'confirm' ? (
-                        <DialogFooter className="sm:justify-start gap-2">
-                            <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
-                                Edit
-                            </Button>
-                            <Button type="button" className="bg-[#FF6200] hover:bg-[#ff7a29]" onClick={handleSendOtp} disabled={otpStatus === 'sending'}>
-                                {otpStatus === 'sending' ? <Loader2 className="animate-spin h-4 w-4" /> : 'Send OTP'}
-                            </Button>
-                        </DialogFooter>
+                        <div className="space-y-4">
+                            {otpStatus === 'error' && otpErrorMessage && (
+                                <div className="p-3 bg-red-50 text-red-600 text-sm rounded-lg font-medium text-center">
+                                    {otpErrorMessage}
+                                </div>
+                            )}
+                            <DialogFooter className="sm:justify-start gap-2">
+                                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+                                    Edit
+                                </Button>
+                                <Button type="button" className="bg-[#FF6200] hover:bg-[#ff7a29]" onClick={handleSendOtp} disabled={otpStatus === 'sending'}>
+                                    {otpStatus === 'sending' ? <Loader2 className="animate-spin h-4 w-4" /> : 'Send OTP'}
+                                </Button>
+                            </DialogFooter>
+                        </div>
                     ) : (
                         <div className="space-y-4">
                             <div className="flex justify-center py-4">
@@ -463,6 +511,17 @@ export default function RegisterForm() {
                                     </InputOTPGroup>
                                 </InputOTP>
                             </div>
+
+                            <div className="text-center text-sm text-slate-500">
+                                {timeLeft > 0 ? (
+                                    <p>Resend code in <span className="font-mono font-bold text-slate-700">{Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}</span></p>
+                                ) : (
+                                    <Button type="button" variant="link" className="text-[#FF6200] p-0 h-auto font-bold hover:no-underline" onClick={handleSendOtp}>
+                                        Resend Code
+                                    </Button>
+                                )}
+                            </div>
+
                             {otpStatus === 'error' && <p className="text-red-500 text-sm font-medium text-center">Invalid OTP. Please try again.</p>}
                             <DialogFooter className="sm:justify-between gap-2">
                                 <Button type="button" variant="ghost" onClick={() => setOtpStep('confirm')}>Back</Button>

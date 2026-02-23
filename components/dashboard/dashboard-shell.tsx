@@ -23,12 +23,14 @@ export type DashboardShellProps = {
     label: string
     href?: string
   }[]
+  headerRight?: ReactNode
 }
 
 export function DashboardShell({
   sidebar,
   children,
   breadcrumbs = [],
+  headerRight,
 }: DashboardShellProps) {
   return (
     <SidebarProvider>
@@ -60,6 +62,11 @@ export function DashboardShell({
               </BreadcrumbList>
             </Breadcrumb>
           </div>
+          {headerRight && (
+            <div className="ml-auto flex items-center gap-2 px-4">
+              {headerRight}
+            </div>
+          )}
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">{children}</div>
       </SidebarInset>

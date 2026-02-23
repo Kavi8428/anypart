@@ -1,10 +1,11 @@
-import { getProductDetails, getBuyerCredits, getBuyerDetails } from "@/app/actions/buyer"
+import { getProductDetails, getBuyerDetails } from "@/app/actions/buyer"
+import { prisma } from "@/lib/prisma"
 import { notFound } from "next/navigation"
-import Image from "next/image"
 import Link from "next/link"
-import { ArrowLeft, Star, ShoppingCart, Package, Calendar, Tag } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { ArrowLeft, ShoppingCart, Package, Calendar, Tag } from "lucide-react"
 import { ChatWithSellerButton } from "@/components/buyer/ChatWithSellerButton"
+import { ProductImageGallery } from "@/components/buyer/ProductImageGallery"
 
 export default async function ProductViewPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params
@@ -15,8 +16,14 @@ export default async function ProductViewPage({ params }: { params: Promise<{ id
     }
 
     const product = await getProductDetails(productId)
-    const credits = await getBuyerCredits()
     const buyer = await getBuyerDetails()
+    // Manual credit check to avoid redundant getBuyerDetails call inside getBuyerCredits()
+    const credits = buyer ? await prisma.buyer_order_token.count({
+        where: {
+            buyer_id: buyer.id,
+            status: 0,
+        }
+    }) : 0;
 
     if (!product) {
         notFound()
@@ -50,42 +57,7 @@ export default async function ProductViewPage({ params }: { params: Promise<{ id
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                     {/* Image Gallery */}
-                    <div className="space-y-2 sm:space-y-3">
-                        <div className="aspect-square relative bg-white rounded-lg sm:rounded-xl overflow-hidden border border-gray-200 shadow-sm">
-                            {images.length > 0 ? (
-                                <Image
-                                    src={`/products/${images[0]}`}
-                                    alt={partName}
-                                    fill
-                                    className="object-cover"
-                                    priority
-                                />
-                            ) : (
-                                <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
-                                    <Package className="w-16 h-16 sm:w-24 sm:h-24 text-gray-300" />
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Thumbnail Gallery */}
-                        {images.length > 1 && (
-                            <div className="grid grid-cols-3 gap-2">
-                                {images.slice(1).map((img, idx) => (
-                                    <div
-                                        key={idx}
-                                        className="aspect-square relative bg-white rounded-md overflow-hidden border border-gray-200"
-                                    >
-                                        <Image
-                                            src={`/products/${img}`}
-                                            alt={`${partName} ${idx + 2}`}
-                                            fill
-                                            className="object-cover"
-                                        />
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
+                    <ProductImageGallery images={images} partName={partName} />
 
                     {/* Product Info */}
                     <div className="space-y-3 sm:space-y-4">
@@ -104,21 +76,23 @@ export default async function ProductViewPage({ params }: { params: Promise<{ id
                             )}
                         </div>
 
-                        {/* Rating */}
-                        <div className="flex items-center gap-1.5">
-                            <div className="flex items-center gap-0.5">
-                                {[1, 2, 3, 4, 5].map((star) => (
-                                    <Star key={star} className="w-3 h-3 sm:w-4 sm:h-4 fill-yellow-400 text-yellow-400" />
-                                ))}
+                        {/* Rating (Future expansion) */}
+                        {/* {reviewCount > 0 && (
+                            <div className="flex items-center gap-1.5">
+                                <div className="flex items-center gap-0.5">
+                                    {[1, 2, 3, 4, 5].map((star) => (
+                                        <Star key={star} className="w-3 h-3 sm:w-4 sm:h-4 fill-yellow-400 text-yellow-400" />
+                                    ))}
+                                </div>
+                                <span className="text-xs text-gray-600">({reviewCount} reviews)</span>
                             </div>
-                            <span className="text-xs text-gray-600">(0 reviews)</span>
-                        </div>
+                        )} */}
 
                         {/* Price */}
                         <div className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-primary/20">
                             <p className="text-[10px] sm:text-xs text-gray-600 mb-0.5">Price</p>
                             <p className="text-2xl sm:text-3xl font-extrabold text-primary">
-                                Rs. {product.price.toLocaleString()}
+                                {product.price != null ? `Rs. ${product.price.toLocaleString()}` : "Price N/A"}
                             </p>
                         </div>
 

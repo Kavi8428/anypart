@@ -27,7 +27,7 @@ export function BuyerFooter() {
                                 <Link href="/about" className="hover:text-primary transition-colors">About Us</Link>
                             </li>
                             <li>
-                                <Link href="/seller/" className="hover:text-primary transition-colors">Sell on anypart.lk</Link>
+                                <Link href="/seller/login" className="hover:text-primary transition-colors">Sell on anypart.lk</Link>
                             </li>
                             <li>
                                 <Link href="/faq" className="hover:text-primary transition-colors">FAQ</Link>

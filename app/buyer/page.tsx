@@ -17,7 +17,7 @@ export default async function BuyerHomePage() {
             Featured Products
           </h2>
           <Link
-            href="/buyer/products"
+            href="/buyer/categories"
             className="text-xs sm:text-base text-primary font-bold hover:underline underline-offset-4 transition-all"
           >
             View All

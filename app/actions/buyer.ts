@@ -7,6 +7,7 @@ export async function getFeaturedProducts() {
         const products = await prisma.seller_products.findMany({
             where: {
                 is_featured: 1,
+                deleted_at: null,
             },
             select: {
                 id: true,
@@ -82,8 +83,11 @@ export async function getProductDetails(productId: number) {
         }
 
         // 3. Fetch product with seller details
-        const product = await prisma.seller_products.findUnique({
-            where: { id: productId },
+        const product = await prisma.seller_products.findFirst({
+            where: {
+                id: productId,
+                deleted_at: null,
+            },
             include: {
                 p_name_ref: {
                     include: {
@@ -162,7 +166,7 @@ export async function getBuyerDetails() {
                 buyer_details: {
                     include: {
                         cities: true,
-                        disctricts: true
+                        districts: true
                     }
                 }
             }

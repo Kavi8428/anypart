@@ -44,8 +44,9 @@ export async function GET(
             where: { id: id },
             include: {
                 cities: true,
-                disctricts: true
+                districts: true
             }
+
         })
 
         if (!buyer) {

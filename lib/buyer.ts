@@ -1,6 +1,7 @@
 "use server"
 
 import { prisma } from "@/lib/prisma"
+import { normalizeImageUrl } from "@/lib/image-utils"
 
 export async function getVehicleBrands() {
     try {
@@ -52,6 +53,7 @@ export async function getSearchSuggestions(query: string, brandId?: string) {
                 p_name: true,
                 v_model: true,
                 v_year: true,
+                image_url_1: true,
                 p_name_ref: {
                     select: {
                         id: true,
@@ -86,10 +88,13 @@ export async function getSearchSuggestions(query: string, brandId?: string) {
             const partName = product.p_name_ref?.name || "Unknown Part"
             const brandName = product.v_model_ref?.v_brands?.name || ""
             const modelName = product.v_model_ref?.name || ""
+            const partBrand = product.p_name_ref?.p_brands?.name || ""
 
             return {
                 id: product.id,
                 label: `${partName}${brandName || modelName ? ` - ${brandName} ${modelName}`.trim() : ""}`,
+                partBrand,
+                imageUrl: normalizeImageUrl(product.image_url_1),
                 // Include navigation data
                 brandId: product.v_model_ref?.v_brands?.id,
                 modelName: product.v_model_ref?.name,

@@ -15,8 +15,10 @@ const eslintConfig = defineConfig([
   ]),
   {
     rules: {
-      // Suppress warnings for third-party library hooks that we don't control
+      "react-hooks/exhaustive-deps": "warn",
       "react-hooks/incompatible-library": "off",
+      "@typescript-eslint/no-explicit-any": "warn",
+      "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }]
     },
   },
 ]);

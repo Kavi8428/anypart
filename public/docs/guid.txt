@@ -1,0 +1,96 @@
+QuickSend SMS Gateway Solution
+-API Documentation1. Authorization
+Authorization in this API uses the email address registered to
+your account and the API key provided by the QuiskSend
+platform. The API authentication method is Basic Auth, where the
+username is your email address and the password is your API
+key.
+Authorization
+Method Basic Auth
+Username Email Address
+Password API Key
+2. Send Single SMS
+Using the Single SMS API, you can send a single SMS through
+the API, with support for both non-Unicode and Unicode
+characters.
+In addition to Basic Auth authorization, the SMS data must be
+passed in JSON format.
+Single SMS
+Data Type Json/POST
+API Url https://quicksend.lk/Client/api.php?FUN=SE
+ND_SINGLE
+JSON Data {
+ "senderID":"QKSendDemo",
+ "to":"0750355053",
+ "msg":"A Test Message"
+}
+3. Send Bulk SMS (Bulk Same)
+Using the Bulk SMS (Bulk Same) API, you can send the same
+message to a list of multiple recipients. Both non-Unicode and
+Unicode characters are supported.
+In addition to Basic Auth authorization, the SMS data must be
+passed in JSON format.
+● To check the cost before sending the bulk SMS, include the
+parameter "check_cost": true in the JSON dataset. This will
+return the cost information.
+○ After that, to send the bulk SMS, simply exclude the
+"check_cost" parameter from the JSON Or make
+“check_cost”: false.
+Bulk SMS (Bulk Same)
+Data Type Json/POST
+API Url https://quicksend.lk/Client/api.php?FUN=SE
+ND_BULK_SAME
+JSON Data To Check
+The Cost
+{
+ "check_cost": true,
+ "senderID":"QKSendDemo",
+ "to": [
+ "0771234567","0777654321"
+ ],
+ "msg":"A test Message"
+}
+JSON Data To Send
+Bulk Same SMS
+{
+ "check_cost": false,
+ "senderID":"QKSendDemo",
+ "to": [
+ "0771234567","0777654321"
+ ],
+ "msg":"A test Message"
+}
+Note: With the Bulk SMS (Bulk Same) API, the maximum number of
+messages that can be sent in a single request is 10,000.
+4. Send Bulk SMS (Bulk Different)
+Using the Bulk SMS (Bulk Different) API, you can send different
+messages to a list of up to 20 recipients. Both non-Unicode and
+Unicode characters are supported. In addition to Basic Auth
+authorization, the SMS data must be passed in JSON format.
+Bulk SMS (Bulk Different)
+Data Type Json/POST
+API Url https://quicksend.lk/Client/api.php?FUN=SEN
+D_BULK_DIFFERENT
+JSON Data {
+ "senderID":"QKSendDemo",
+ "msg_list": [
+ {
+ "msg":"A Test Message 1",
+ "to":"0771234567"
+ },
+ {
+ "msg":"A Test Message 2",
+ "to":"0777654321"
+ }
+
+ ]
+}
+Note: With the Bulk SMS (Bulk Different) API, the maximum number
+of messages that can be sent in a single request is 20.
+5. Check Balance
+Bulk SMS (Bulk Different)
+Data Type Json/POST
+API Url https://quicksend.lk/Client/api.php?FUN=CHE
+CK_BALANCE
+:For assistance or inquiries, please reach out to QuiskSend.
+Thank You

@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dialog"
 import { ProductForm } from "./product-form"
 import { getProductMetaData } from "@/app/actions/product-meta"
+import { useRouter } from "next/navigation"
 
 export type ProductDetail = {
     id: number;
@@ -29,6 +30,12 @@ export type ProductDetail = {
     image_url_1: string;
     image_url_2?: string;
     image_url_3?: string;
+    seller_payments?: {
+        order_id: string;
+        amount: number;
+        status_ref: { status: string };
+        created_at: Date;
+    } | null;
 };
 
 interface ProductListProps {
@@ -37,20 +44,23 @@ interface ProductListProps {
 }
 
 export function ProductList({ data, rawProducts }: ProductListProps) {
+    const router = useRouter()
     const [isOpen, setIsOpen] = React.useState(false)
     const [initialData, setInitialData] = React.useState<ProductDetail | null>(null)
     const [metaData, setMetaData] = React.useState<{
-        pNames: { id: number; name: string }[];
-        vModels: { id: number; name: string; v_brands: { name: string } }[];
+        pNames: { id: number; name: string; part_brand: number; p_brands: { id: number; name: string } }[];
+        vModels: { id: number; name: string; year: number | null; v_brands: { name: string } }[];
         conditions: { id: number; status: string }[];
         tags: { id: number; name: string }[];
         vYears: { id: number; year: number }[];
+        featuredPrice: number;
     }>({
         pNames: [],
         vModels: [],
         conditions: [],
         tags: [],
         vYears: [],
+        featuredPrice: 5000,
     })
 
     React.useEffect(() => {
@@ -97,11 +107,11 @@ export function ProductList({ data, rawProducts }: ProductListProps) {
                     <ProductForm
                         initialData={initialData}
                         metaData={metaData}
-                        onSuccess={() => {
-                            setIsOpen(false)
-                            // Since it's server components for the list, we might need a refresh or revalidate
-                            window.location.reload()
+                        onSuccess={(shouldClose = true) => {
+                            if (shouldClose) setIsOpen(false)
+                            router.refresh()
                         }}
+                        onAddNew={() => setInitialData(null)}
                     />
                 </DialogContent>
             </Dialog>

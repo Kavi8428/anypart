@@ -60,7 +60,7 @@ export const sellerNavConfig: SidebarConfig = {
       url: "/seller/settings",
       icon: Settings,
       items: [
-        { title: "Profile", url: "/seller/settings" },
+        { title: "Profile", url: "/seller/settings/profile" },
       ],
     },
   ],

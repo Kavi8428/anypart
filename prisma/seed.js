@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 const { PrismaClient } = require('@prisma/client');
+const bcrypt = require('bcryptjs');
 const prisma = new PrismaClient();
 
 async function main() {
@@ -18,8 +19,8 @@ async function main() {
             address: 'No. 45, Galle Road, Colombo 03, Sri Lanka',
             logo_url: '/logo.png',
             br_number: 'BR-2024-001234',
-            tel1: 704973144,
-            tel2: 712345678,
+            tel1: '0704973144',
+            tel2: '0712345678',
             fb_link: 'https://facebook.com/anypart.lk',
             tiktok_link: 'https://tiktok.com/@anypart.lk',
             bio: 'Sri Lanka\'s leading online marketplace for vehicle spare parts. Find genuine and aftermarket parts for all vehicles.',
@@ -93,10 +94,11 @@ async function main() {
     // 5. ADMIN USERS
     // ──────────────────────────────────────────────
     console.log('  → Seeding app_admins...');
+    const hashedAdminPassword = await bcrypt.hash('1234', 10);
     const admins = [
-        { id: 1, full_name: 'System Admin', user_name: 'admin', password: 'password123', email: 'admin@anypart.lk', tel: 704973144, address: 'Colombo, Sri Lanka', role: 1, department: 1 },
-        { id: 2, full_name: 'John Manager', user_name: 'john.m', password: 'password123', email: 'john@anypart.lk', tel: 712345678, address: 'Kandy, Sri Lanka', role: 2, department: 1 },
-        { id: 3, full_name: 'Sarah Moderator', user_name: 'sarah.mod', password: 'password123', email: 'sarah@anypart.lk', tel: 773456789, address: 'Galle, Sri Lanka', role: 3, department: 3 },
+        { id: 1, full_name: 'System Admin', user_name: 'admin', password: hashedAdminPassword, email: 'admin@anypart.lk', tel: '0704973144', address: 'Colombo, Sri Lanka', role: 1, department: 1, NIC: '123456789V' },
+        { id: 2, full_name: 'John Manager', user_name: 'john.m', password: hashedAdminPassword, email: 'john@anypart.lk', tel: '0712345678', address: 'Kandy, Sri Lanka', role: 2, department: 1, NIC: '987654321V' },
+        { id: 3, full_name: 'Sarah Moderator', user_name: 'sarah.mod', password: hashedAdminPassword, email: 'sarah@anypart.lk', tel: '0773456789', address: 'Galle, Sri Lanka', role: 3, department: 3, NIC: '112233445V' },
     ];
     for (const a of admins) {
         await prisma.app_admins.upsert({
@@ -109,7 +111,7 @@ async function main() {
     // ──────────────────────────────────────────────
     // 6. DISTRICTS & CITIES
     // ──────────────────────────────────────────────
-    console.log('  → Seeding disctricts & cities...');
+    console.log('  → Seeding districts & cities...');
     const districtsData = [
         { id: 1, name: 'Colombo', cities: ['Colombo 01', 'Colombo 02', 'Colombo 03', 'Dehiwala', 'Mount Lavinia', 'Moratuwa', 'Nugegoda', 'Maharagama'] },
         { id: 2, name: 'Gampaha', cities: ['Negombo', 'Gampaha', 'Kadawatha', 'Ja-Ela', 'Wattala', 'Kandana'] },
@@ -125,7 +127,7 @@ async function main() {
     const cityMap = {}; // store city IDs for later reference
 
     for (const d of districtsData) {
-        await prisma.disctricts.upsert({
+        await prisma.districts.upsert({
             where: { id: d.id },
             update: {},
             create: { id: d.id, name: d.name },
@@ -134,7 +136,7 @@ async function main() {
             await prisma.cities.upsert({
                 where: { id: cityId },
                 update: {},
-                create: { id: cityId, name: cName, disctrict_id: d.id },
+                create: { id: cityId, name: cName, district_id: d.id },
             });
             cityMap[cName] = cityId;
             cityId++;
@@ -163,10 +165,11 @@ async function main() {
     // 8. BUYER DETAILS
     // ──────────────────────────────────────────────
     console.log('  → Seeding buyer_details...');
+    const hashedBuyerPassword = await bcrypt.hash('1234', 10);
     const buyers = [
-        { id: 1, full_name: 'Kamal Perera', address: '123 Galle Road, Colombo', city: 1, district: 1, tel: 771234567, email: 'kamal@example.com', user_name: 'kamal_p', password: 'password123', verified: 1 },
-        { id: 2, full_name: 'Nimal Silva', address: '45 Kandy Road, Kadawatha', city: 10, district: 2, tel: 772345678, email: 'nimal@example.com', user_name: 'nimal_s', password: 'password123', verified: 1 },
-        { id: 3, full_name: 'Amara Fernando', address: '78 Temple Road, Kandy', city: 17, district: 3, tel: 773456789, email: 'amara@example.com', user_name: 'amara_f', password: 'password123', verified: 0 },
+        { id: 1, full_name: 'Kamal Perera', address: '123 Galle Road, Colombo', city: 1, district: 1, tel: '0771234567', email: 'kamal@example.com', user_name: 'kamal_p', password: hashedBuyerPassword, verified: 1 },
+        { id: 2, full_name: 'Nimal Silva', address: '45 Kandy Road, Kadawatha', city: 10, district: 2, tel: '0772345678', email: 'nimal@example.com', user_name: 'nimal_s', password: hashedBuyerPassword, verified: 1 },
+        { id: 3, full_name: 'Amara Fernando', address: '78 Temple Road, Kandy', city: 17, district: 3, tel: '0773456789', email: 'amara@example.com', user_name: 'amara_f', password: hashedBuyerPassword, verified: 0 },
     ];
     for (const b of buyers) {
         await prisma.buyer_details.upsert({
@@ -180,11 +183,12 @@ async function main() {
     // 9. SELLER DETAILS
     // ──────────────────────────────────────────────
     console.log('  → Seeding seller_details...');
+    const hashedSellerPassword = await bcrypt.hash('1234', 10);
     const sellers = [
-        { id: 1, name: 'Colombo Auto Parts', logo_url: '/sellers/colombo-auto.png', br_number: 'BR-001', address: '456 Baseline Road, Colombo 09', city: 1, disctrict: 1, tel1: 711234567, tel2: 711234568, seller_type: 2, verified: 1, user_name: '0711234567', password: 'password123' },
-        { id: 2, name: 'Kandy Spares Hub', logo_url: '/sellers/kandy-spares.png', br_number: 'BR-002', address: '12 Peradeniya Road, Kandy', city: 17, disctrict: 3, tel1: 712345678, seller_type: 2, verified: 1, user_name: '0712345678', password: 'password123' },
-        { id: 3, name: 'Galle Parts Depot', logo_url: '/sellers/galle-parts.png', br_number: 'BR-003', address: '89 Main Street, Galle', city: 23, disctrict: 4, tel1: 713456789, seller_type: 3, verified: 1, user_name: '0713456789', password: 'password123' },
-        { id: 4, name: 'Island Auto Imports', logo_url: '/sellers/island-imports.png', br_number: 'BR-004', address: '22 Negombo Road, Wattala', city: 13, disctrict: 2, tel1: 714567890, seller_type: 4, verified: 1, user_name: '0714567890', password: 'password123' },
+        { id: 1, name: 'Colombo Auto Parts', logo_url: '/sellers/colombo-auto.png', br_number: 'BR-001', address: '456 Baseline Road, Colombo 09', city: 1, district: 1, tel1: '0711234567', tel2: '0711234568', seller_type: 2, verified: 1, user_name: '0711234567', password: hashedSellerPassword },
+        { id: 2, name: 'Kandy Spares Hub', logo_url: '/sellers/kandy-spares.png', br_number: 'BR-002', address: '12 Peradeniya Road, Kandy', city: 17, district: 3, tel1: '0712345678', seller_type: 2, verified: 1, user_name: '0712345678', password: hashedSellerPassword },
+        { id: 3, name: 'Galle Parts Depot', logo_url: '/sellers/galle-parts.png', br_number: 'BR-003', address: '89 Main Street, Galle', city: 23, district: 4, tel1: '0713456789', seller_type: 3, verified: 1, user_name: '0713456789', password: hashedSellerPassword },
+        { id: 4, name: 'Island Auto Imports', logo_url: '/sellers/island-imports.png', br_number: 'BR-004', address: '22 Negombo Road, Wattala', city: 13, district: 2, tel1: '0714567890', seller_type: 4, verified: 1, user_name: '0714567890', password: hashedSellerPassword },
     ];
     for (const s of sellers) {
         await prisma.seller_details.upsert({
@@ -544,24 +548,24 @@ async function main() {
         {
             id: 1, buyer_id: 1, seller_id: 1, order_id: 1,
             messages: [
-                { sender_id: 1, receiver_id: 1, content: 'Hi, is this oil filter still available?', is_read: 1 },
-                { sender_id: 1, receiver_id: 1, content: 'Yes, it is available. Would you like to place an order?', is_read: 1 },
-                { sender_id: 1, receiver_id: 1, content: 'Yes please! I will order now.', is_read: 1 },
+                { sender_id: 1, receiver_id: 1, sender_type: 0, content: 'Hi, is this oil filter still available?', is_read: 1 },
+                { sender_id: 1, receiver_id: 1, sender_type: 1, content: 'Yes, it is available. Would you like to place an order?', is_read: 1 },
+                { sender_id: 1, receiver_id: 1, sender_type: 0, content: 'Yes please! I will order now.', is_read: 1 },
             ],
         },
         {
             id: 2, buyer_id: 1, seller_id: 2, order_id: 2,
             messages: [
-                { sender_id: 1, receiver_id: 2, content: 'Can you ship this to Colombo?', is_read: 1 },
-                { sender_id: 2, receiver_id: 1, content: 'Yes, we deliver island-wide. Delivery charge is LKR 350.', is_read: 1 },
-                { sender_id: 1, receiver_id: 2, content: 'OK great, I will proceed with the order.', is_read: 0 },
+                { sender_id: 1, receiver_id: 2, sender_type: 0, content: 'Can you ship this to Colombo?', is_read: 1 },
+                { sender_id: 2, receiver_id: 1, sender_type: 1, content: 'Yes, we deliver island-wide. Delivery charge is LKR 350.', is_read: 1 },
+                { sender_id: 1, receiver_id: 2, sender_type: 0, content: 'OK great, I will proceed with the order.', is_read: 0 },
             ],
         },
         {
             id: 3, buyer_id: 2, seller_id: 3, order_id: 3,
             messages: [
-                { sender_id: 2, receiver_id: 3, content: 'Is this spark plug compatible with 2021 model?', is_read: 1 },
-                { sender_id: 3, receiver_id: 2, content: 'Yes, it fits 2020-2023 Corolla models.', is_read: 0 },
+                { sender_id: 2, receiver_id: 3, sender_type: 0, content: 'Is this spark plug compatible with 2021 model?', is_read: 1 },
+                { sender_id: 3, receiver_id: 2, sender_type: 1, content: 'Yes, it fits 2020-2023 Corolla models.', is_read: 0 },
             ],
         },
     ];
@@ -582,6 +586,7 @@ async function main() {
                     conversation_id: conv.id,
                     sender_id: msg.sender_id,
                     receiver_id: msg.receiver_id,
+                    sender_type: msg.sender_type,
                     content: msg.content,
                     is_read: msg.is_read,
                 },
@@ -595,10 +600,10 @@ async function main() {
     // ──────────────────────────────────────────────
     console.log('  → Seeding media_types...');
     const mediaTypes = [
-        { id: 1, type: 'Image', extention: 'jpg,png,webp' },
-        { id: 2, type: 'Video', extention: 'mp4,webm' },
-        { id: 3, type: 'Document', extention: 'pdf,doc,docx' },
-        { id: 4, type: 'Audio', extention: 'mp3,wav' },
+        { id: 1, type: 'Image', extension: 'jpg,png,webp' },
+        { id: 2, type: 'Video', extension: 'mp4,webm' },
+        { id: 3, type: 'Document', extension: 'pdf,doc,docx' },
+        { id: 4, type: 'Audio', extension: 'mp3,wav' },
     ];
     for (const mt of mediaTypes) {
         await prisma.media_types.upsert({
@@ -609,19 +614,68 @@ async function main() {
     }
 
     // ──────────────────────────────────────────────
-    // 24. SELLER PAYMENTS
+    // 24. PAYMENT METHODS
+    // ──────────────────────────────────────────────
+    console.log('  → Seeding payment_methods...');
+    const paymentMethods = [
+        { id: 1, method: 'VISA', definition: 'Visa Credit/Debit Card' },
+        { id: 2, method: 'MASTER', definition: 'MasterCard Credit/Debit Card' },
+        { id: 3, method: 'AMEX', definition: 'American Express' },
+        { id: 4, method: 'EZ_CASH', definition: 'Dialog eZ Cash' },
+        { id: 5, method: 'M_CASH', definition: 'Mobitel mCash' },
+        { id: 6, method: 'KOKO_PAY', definition: 'Koko Pay Installments' },
+        { id: 7, method: 'MINT_PAY', definition: 'Mint Pay Installments' },
+    ];
+    for (const pm of paymentMethods) {
+        await prisma.payment_methods.upsert({
+            where: { id: pm.id },
+            update: {},
+            create: pm,
+        });
+    }
+
+    // ──────────────────────────────────────────────
+    // 25. SELLER PAYMENTS
     // ──────────────────────────────────────────────
     console.log('  → Seeding seller_payments...');
     const sellerPayments = [
-        { id: 1, seller_id: 1, product_id: 1, order_id: 'SORD-2024-001', amount: 2500.00, currency: 'LKR', status: 'COMPLETED', payhere_status: 2, payhere_amount: 2500.00, method: 'VISA' },
-        { id: 2, seller_id: 1, product_id: 2, order_id: 'SORD-2024-002', amount: 5000.00, currency: 'LKR', status: 'COMPLETED', payhere_status: 2, payhere_amount: 5000.00, method: 'MASTER' },
-        { id: 3, seller_id: 2, product_id: 4, order_id: 'SORD-2024-003', amount: 2500.00, currency: 'LKR', status: 'PENDING', payhere_status: 0, payhere_amount: null, method: null },
+        { id: 1, seller_id: 1, order_id: 'SORD-2024-001', amount: 2500.00, currency: 'LKR', status_id: 2, payhere_status: 2, payhere_amount: 2500.00, method_id: 1 },
+        { id: 2, seller_id: 1, order_id: 'SORD-2024-002', amount: 5000.00, currency: 'LKR', status_id: 2, payhere_status: 2, payhere_amount: 5000.00, method_id: 2 },
+        { id: 3, seller_id: 2, order_id: 'SORD-2024-003', amount: 2500.00, currency: 'LKR', status_id: 1, payhere_status: null, payhere_amount: null, method_id: null },
     ];
     for (const sp of sellerPayments) {
         await prisma.seller_payments.upsert({
             where: { id: sp.id },
             update: {},
             create: sp,
+        });
+    }
+
+    // ──────────────────────────────────────────────
+    // 26. PROMOTIONS & PRICES
+    // ──────────────────────────────────────────────
+    console.log('  → Seeding promotions...');
+    const featuredPromo = await prisma.promotions.upsert({
+        where: { id: 1 },
+        update: {},
+        create: {
+            id: 1,
+            name: 'Featured Products',
+            description: 'Standard featured product listing fee'
+        }
+    });
+
+    const existingPriceList = await prisma.promotion_price_list.findFirst({
+        where: { promotion_id: featuredPromo.id }
+    });
+
+    if (!existingPriceList) {
+        await prisma.promotion_price_list.create({
+            data: {
+                promotion_id: featuredPromo.id,
+                price: 200.00,
+                description: 'Featured Products'
+            }
         });
     }
 

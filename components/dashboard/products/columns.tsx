@@ -1,6 +1,7 @@
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
+import Image from "next/image"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -41,14 +42,12 @@ export const getColumns = ({ onEdit }: ColumnProps): ColumnDef<ProductColumn>[] 
         cell: ({ row }) => {
             return (
                 <div className="relative h-12 w-12 overflow-hidden rounded-md border">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
+                    <Image
                         src={row.original.image_url || "/placeholder-product.png"}
                         alt={row.original.p_name}
-                        className="h-full w-full object-cover"
-                        onError={(e) => {
-                            (e.target as HTMLImageElement).src = "/placeholder-product.png";
-                        }}
+                        fill
+                        className="object-cover"
+                        unoptimized
                     />
                 </div>
             )

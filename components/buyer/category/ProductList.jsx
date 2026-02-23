@@ -1,6 +1,7 @@
 "use client";
 
 import { ProductCard } from "@/components/buyer/ProductCard";
+import { normalizeImageUrl } from "@/lib/image-utils";
 
 export function ProductList({ products }) {
     if (!products || products.length === 0) {
@@ -23,7 +24,7 @@ export function ProductList({ products }) {
                     price={product.price}
                     rating={5.0} // Placeholder as rating isn't in seller_products schema clearly or is separate
                     reviewsCount={10} // Placeholder
-                    imageUrl={product.image_url_1 ? `/products/${product.image_url_1}` : undefined}
+                    imageUrl={normalizeImageUrl(product.image_url_1)}
                 />
             ))}
         </div>

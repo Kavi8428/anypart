@@ -51,13 +51,40 @@ export async function PUT(request, { params }) {
     }
 
     try {
+        // Whitelist allowed fields to prevent mass-assignment vulnerability
+        const {
+            p_name,
+            v_model,
+            v_year,
+            price,
+            condition,
+            description,
+            image_url_1,
+            image_url_2,
+            image_url_3,
+            hash_tag_1,
+            hash_tag_2,
+            hash_tag_3
+        } = body;
+
         const product = await prisma.seller_products.updateMany({
             where: {
                 id: parseInt(id),
                 seller_id: session.seller_id,
             },
             data: {
-                ...body,
+                p_name,
+                v_model,
+                v_year,
+                price,
+                condition,
+                description,
+                image_url_1,
+                image_url_2,
+                image_url_3,
+                hash_tag_1,
+                hash_tag_2,
+                hash_tag_3,
                 updated_at: new Date(),
             },
         });

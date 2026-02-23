@@ -18,7 +18,7 @@ export function middleware(request: NextRequest) {
     // 2. Seller Route Protection
     if (pathname.startsWith('/seller')) {
         // Exclude public seller routes (login, verify, etc.)
-        if (!pathname.startsWith('/seller/login') && !pathname.startsWith('/seller/register') && !pathname.startsWith('/seller/api')) {
+        if (!pathname.startsWith('/seller/login') && !pathname.startsWith('/seller/register') && !pathname.startsWith('/seller/forget-password') && !pathname.startsWith('/seller/api')) {
             const sellerSession = request.cookies.get('seller_session');
             if (!sellerSession) {
                 return NextResponse.redirect(new URL('/seller/login', request.url));

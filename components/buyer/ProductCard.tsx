@@ -1,8 +1,8 @@
 "use client"
 
 import React from "react"
-import Image from "next/image"
 import Link from "next/link"
+import Image from "next/image"
 import { Star } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
@@ -10,7 +10,7 @@ interface ProductCardProps {
     id: string
     title: string
     makeModel: string
-    price: number
+    price: number | null
     rating: number
     reviewsCount: number
     imageUrl?: string
@@ -35,6 +35,7 @@ export function ProductCard({
                         alt={title}
                         fill
                         className="object-cover group-hover:scale-105 transition-transform duration-500"
+                        unoptimized
                     />
                 ) : (
                     <div className="absolute inset-0 flex items-center justify-center bg-gray-100/50">
@@ -63,7 +64,7 @@ export function ProductCard({
                 {/* Price */}
                 <div className="pt-0.5">
                     <div className="text-sm sm:text-lg font-extrabold text-primary">
-                        Rs. {price.toLocaleString()}
+                        {price != null ? `Rs. ${price.toLocaleString()}` : "Price N/A"}
                     </div>
                 </div>
 

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { normalizeImageUrl } from "@/lib/image-utils";
 import { cn } from "@/lib/utils";
 
 export function BrandGrid({ brands, selectedBrandId }) {
@@ -24,10 +25,12 @@ export function BrandGrid({ brands, selectedBrandId }) {
                         <div className="relative w-16 h-16 mb-3">
                             {brand.logo_url ? (
                                 <Image
-                                    src={brand.logo_url}
+                                    src={normalizeImageUrl(brand.logo_url, '/brands/')}
                                     alt={brand.name}
-                                    fill
-                                    className="object-contain p-1"
+                                    width={64}
+                                    height={64}
+                                    className="w-full h-full object-contain p-1"
+                                    unoptimized
                                 />
                             ) : (
                                 <div className="w-full h-full bg-gray-100 rounded-full flex items-center justify-center text-gray-400 font-bold text-xl">
