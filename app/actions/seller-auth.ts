@@ -73,7 +73,8 @@ export async function sellerLogin(prevState: FormState | null, formData: FormDat
         const cookieStore = await cookies();
         cookieStore.set('seller_session', token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
+            // In production behind a proxy using HTTP, secure cookies may not be sent. Adjust based on environment variable.
+            secure: process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_APP_URL?.startsWith('https'),
             expires: expiresAt,
             path: '/',
             sameSite: 'lax',
