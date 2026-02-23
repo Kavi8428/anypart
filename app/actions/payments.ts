@@ -117,3 +117,67 @@ export async function mockPaymentSuccess(order_id: string) {
 
     return { success: true };
 }
+
+export async function getSellerPayments(page: number = 1, limit: number = 10) {
+    const session = await getSellerSession();
+    if (!session) throw new Error('Unauthorized');
+
+    const skip = (page - 1) * limit;
+
+    try {
+        const [payments, total] = await Promise.all([
+            prisma.seller_payments.findMany({
+                where: { seller_id: session.seller_id },
+                include: {
+                    status_ref: true,
+                    method_ref: true,
+                    seller_products: {
+                        include: {
+                            p_name_ref: true,
+                        }
+                    }
+                },
+                orderBy: { created_at: 'desc' },
+                skip,
+                take: limit,
+            }),
+            prisma.seller_payments.count({
+                where: { seller_id: session.seller_id },
+            })
+        ]);
+
+        const formattedPayments = payments.map(p => ({
+            id: p.id,
+            order_id: p.order_id,
+            amount: p.amount,
+            currency: p.currency,
+            status: p.status_ref?.status || 'Unknown',
+            method: p.method_ref?.method || 'N/A',
+            created_at: p.created_at,
+            payhere_status: p.payhere_status,
+            payhere_amount: p.payhere_amount,
+            updated_at: p.updated_at,
+            products: p.seller_products.map(sp => ({
+                id: sp.id,
+                name: sp.p_name_ref.name,
+                image: sp.image_url_1,
+                price: sp.price,
+                description: sp.description,
+            }))
+        }));
+
+        return {
+            data: formattedPayments,
+            meta: {
+                total,
+                page,
+                limit,
+                totalPages: Math.ceil(total / limit),
+            }
+        };
+    } catch (error) {
+        console.error("Error fetching payments:", error);
+        throw new Error("Failed to fetch payments");
+    }
+}
+

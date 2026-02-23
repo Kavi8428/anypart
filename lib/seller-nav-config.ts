@@ -5,6 +5,7 @@ import {
   Settings,
   Store,
   MessageSquare,
+  CreditCard,
 } from "lucide-react"
 import type { SidebarConfig } from "./sidebar-config"
 
@@ -55,6 +56,14 @@ export const sellerNavConfig: SidebarConfig = {
         { title: "Messages", url: "/seller/chats" },
       ],
     },
+     {
+      title: "Payments",
+      url: "/seller/payments",
+      icon: CreditCard,
+      items: [
+        { title: "History", url: "/seller/payments" },
+      ],
+    },
     {
       title: "Settings",
       url: "/seller/settings",
@@ -63,6 +72,7 @@ export const sellerNavConfig: SidebarConfig = {
         { title: "Profile", url: "/seller/settings/profile" },
       ],
     },
+   
   ],
   projects: [],
 }

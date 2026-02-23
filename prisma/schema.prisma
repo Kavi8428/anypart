@@ -561,6 +561,7 @@ model promotions {
   promotion_price_list promotion_price_list[]
 }
 
+
 model user_ratings {
   id          Int      @id @default(autoincrement())
   rater_id    Int
