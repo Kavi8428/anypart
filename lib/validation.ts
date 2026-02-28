@@ -110,3 +110,48 @@ export function validateNIC(nic: string): boolean {
 
     return oldFormat.test(nic) || newFormat.test(nic);
 }
+
+/**
+ * Validates product description to prevent inclusion of contact details
+ * @param text - Description text to validate
+ * @returns Error message if forbidden patterns are found, null otherwise
+ */
+export function validateProductDescription(text: string): string | null {
+    if (!text) return null;
+
+    const forbiddenPatterns = [
+        { pattern: /(?:\+94|0094|0)?[7][0-9]\d{7}/g, label: 'phone number' },
+        { pattern: /[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/g, label: 'email address' },
+        { pattern: /\b\d{1,4}\s[\w\s]{1,20}(?:road|street|lane|avenue|mawatha|rd|st|lane|ln|ave|place|no\.?)\b/gi, label: 'address' },
+        { pattern: /\b\d{5}\b/g, label: 'postal code' },
+    ];
+
+    const normalize = (t: string) =>
+        t
+            .replace(/[\s\-().]/g, '')     // remove spaces, dashes, dots, brackets
+            .replace(/\[at\]/gi, '@')      // catch [at] tricks
+            .replace(/\(at\)/gi, '@')      // catch (at) tricks
+            .replace(/zero/gi, '0')        // catch word substitutions
+            .replace(/one/gi, '1')
+            .replace(/two/gi, '2')
+            .replace(/three/gi, '3')
+            .replace(/four/gi, '4')
+            .replace(/five/gi, '5')
+            .replace(/six/gi, '6')
+            .replace(/seven/gi, '7')
+            .replace(/eight/gi, '8')
+            .replace(/nine/gi, '9')
+            .toLowerCase();
+
+    const normalized = normalize(text);
+
+    for (const { pattern, label } of forbiddenPatterns) {
+        // Reset regex index because of 'g' flag
+        pattern.lastIndex = 0;
+        if (pattern.test(text) || pattern.test(normalized)) {
+            return `Contact details are not allowed (${label} detected).`;
+        }
+    }
+
+    return null;
+}

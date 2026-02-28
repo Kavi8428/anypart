@@ -190,7 +190,7 @@ export default function RegisterForm() {
                                 {state?.errors?.name && <p className="text-red-500 text-xs font-medium pl-1">{state.errors.name[0]}</p>}
                             </div>
                             <div className="space-y-1">
-                                <label className="text-xs font-bold text-slate-700 ml-1 uppercase">BR Number</label>
+                                <label className="text-xs font-bold text-slate-700 ml-1 uppercase">BR Number (optional)</label>
                                 <div className="relative group">
                                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 group-focus-within:text-[#FF6200]">
                                         <FileText className="h-4 w-4" />

@@ -5,6 +5,9 @@ import { SellerRecentOrders } from "@/components/seller/dashboard/seller-recent-
 import { SellerProductOverview } from "@/components/seller/dashboard/seller-product-overview";
 import { SellerQuickActions } from "@/components/seller/dashboard/seller-quick-actions";
 import { format } from "date-fns";
+import { PlusCircle } from "lucide-react";
+import { Button } from "@base-ui/react";
+import Link from "next/link";
 
 export default async function SellerDashboardPage() {
   const session = await getSellerSession();
@@ -22,8 +25,18 @@ export default async function SellerDashboardPage() {
             Here's what's happening with your store today.
           </p>
         </div>
-        <div className="bg-card px-4 py-2 rounded-lg border shadow-sm text-sm font-medium">
-          {format(new Date(), "eeee, MMMM do, yyyy")}
+        <div className="flex items-center gap-2">
+          {/* Add product button */}
+          <Link href="/seller/products?action=add">
+            <Button className="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition-all hover:bg-primary/90 hover:shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 active:scale-95">
+              <PlusCircle className="mr-2 h-5 w-5" />
+              Add Product
+            </Button>
+          </Link>
+          <div className="bg-card px-4 py-2 rounded-lg border shadow-sm text-sm font-medium">
+
+            {format(new Date(), "eeee, MMMM do, yyyy")}
+          </div>
         </div>
       </div>
 

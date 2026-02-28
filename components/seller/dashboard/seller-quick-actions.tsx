@@ -7,13 +7,13 @@ import { motion } from "framer-motion"
 
 export function SellerQuickActions() {
     const actions = [
-        {
-            title: "Add Product",
-            href: "/seller/products",
-            icon: PlusCircle,
-            color: "text-orange-600",
-            bgColor: "bg-orange-50",
-        },
+        // {
+        //     title: "Add Product",
+        //     href: "/seller/products",
+        //     icon: PlusCircle,
+        //     color: "text-orange-600",
+        //     bgColor: "bg-orange-50",
+        // },
         {
             title: "My Orders",
             href: "/seller/orders",
@@ -38,7 +38,7 @@ export function SellerQuickActions() {
     ]
 
     return (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
             {actions.map((action, idx) => (
                 <Link key={idx} href={action.href}>
                     <motion.div

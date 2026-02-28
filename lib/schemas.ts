@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { validateProductDescription } from './validation';
 
 // --- Utility Regex ---
 const phoneRegex = /^(?:\+94|0)?7[0-9]{8}$/;
@@ -43,7 +44,12 @@ export const ProductSchema = z.object({
     v_year: optionalNumberSchema,
     price: z.coerce.number().min(0, "Price must be a positive number"),
     condition: optionalNumberSchema,
-    description: z.string().optional().nullable(),
+    description: z.string().optional().nullable().refine((val) => {
+        if (!val) return true;
+        return validateProductDescription(val) === null;
+    }, {
+        message: "Contact details (phone, email, etc.) are not allowed in description"
+    }),
     hash_tag_1: z.coerce.number().min(1, "Tag 1 is required"),
     hash_tag_2: optionalNumberSchema,
     hash_tag_3: optionalNumberSchema,

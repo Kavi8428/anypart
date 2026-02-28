@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dialog"
 import { ProductForm } from "./product-form"
 import { getProductMetaData } from "@/app/actions/product-meta"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 
 export type ProductDetail = {
     id: number;
@@ -45,6 +45,7 @@ interface ProductListProps {
 
 export function ProductList({ data, rawProducts }: ProductListProps) {
     const router = useRouter()
+    const searchParams = useSearchParams()
     const [isOpen, setIsOpen] = React.useState(false)
     const [initialData, setInitialData] = React.useState<ProductDetail | null>(null)
     const [metaData, setMetaData] = React.useState<{
@@ -70,6 +71,18 @@ export function ProductList({ data, rawProducts }: ProductListProps) {
         }
         fetchMeta()
     }, [])
+
+    React.useEffect(() => {
+        if (searchParams.get("action") === "add") {
+            setInitialData(null)
+            setIsOpen(true)
+
+            // Optional: Remove the query param after opening to avoid re-triggering on refresh
+            const url = new URL(window.location.href)
+            url.searchParams.delete("action")
+            window.history.replaceState({}, "", url.pathname)
+        }
+    }, [searchParams])
 
     const onEdit = React.useCallback((id: number) => {
         const product = (rawProducts as ProductDetail[]).find((p) => p.id === id)
@@ -100,7 +113,7 @@ export function ProductList({ data, rawProducts }: ProductListProps) {
             />
 
             <Dialog open={isOpen} onOpenChange={setIsOpen}>
-                <DialogContent className="sm:max-w-[600px]">
+                <DialogContent className="sm:max-w-[700px] w-[95vw] max-h-[90vh] pb-8 overflow-y-auto overflow-x-hidden">
                     <DialogHeader>
                         <DialogTitle>{initialData ? "Edit Product" : "Add New Product"}</DialogTitle>
                     </DialogHeader>

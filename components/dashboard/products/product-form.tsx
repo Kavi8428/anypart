@@ -26,6 +26,7 @@ import { saveProduct, updateProduct } from "@/app/actions/products"
 import { Loader2, Image as ImageIcon, Info, CreditCard } from "lucide-react"
 import { PaymentForm } from "./payment-form"
 import { normalizeImageUrl } from "@/lib/image-utils"
+import { validateProductDescription } from "@/lib/validation"
 
 interface ProductFormProps {
     initialData?: {
@@ -83,6 +84,7 @@ export function ProductForm({ initialData, metaData, onSuccess, onAddNew }: Prod
     // Track validation states
     const [isBasicValid, setIsBasicValid] = React.useState(false)
     const [isImagesValid, setIsImagesValid] = React.useState(false)
+    const [descriptionError, setDescriptionError] = React.useState<string | null>(null)
 
     const [previews, setPreviews] = React.useState<{ [key: string]: string | null }>({
         img1: null,
@@ -213,10 +215,15 @@ export function ProductForm({ initialData, metaData, onSuccess, onAddNew }: Prod
         // For images, we are valid if we have an existing image OR a newly selected one
         const hasImg1 = !!initialData?.image_url_1 || (file1Ref.current?.files?.length ?? 0) > 0
 
-        setIsBasicValid(basic)
+        setIsBasicValid(basic && !descriptionError)
         setIsImagesValid(hasImg1)
 
-    }, [initialData])
+    }, [initialData, descriptionError])
+
+    // Update validation when description error changes
+    React.useEffect(() => {
+        checkValidation()
+    }, [descriptionError, checkValidation])
 
     const resetForm = React.useCallback(() => {
         // Reset all states
@@ -243,6 +250,7 @@ export function ProductForm({ initialData, metaData, onSuccess, onAddNew }: Prod
 
         setOrderId(null)
         setPaymentDetails(null)
+        setDescriptionError(null)
         setActiveTab("basic")
 
         // Reset form inputs
@@ -348,7 +356,7 @@ export function ProductForm({ initialData, metaData, onSuccess, onAddNew }: Prod
             setPaymentDetails(null)
         }
         setTimeout(checkValidation, 0)
-    }, [initialData, metaData.pNames, metaData.vModels, metaData.tags, metaData.vYears, checkValidation])
+    }, [initialData, metaData.pNames, metaData.vModels, metaData.tags, metaData.vYears])
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, key: string) => {
         const file = e.target.files?.[0]
@@ -406,18 +414,18 @@ export function ProductForm({ initialData, metaData, onSuccess, onAddNew }: Prod
 
     return (
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-3 mb-6">
-                <TabsTrigger value="basic" className="flex items-center gap-2">
-                    <Info className="h-4 w-4" />
-                    Basic Info
+            <TabsList className="grid w-full grid-cols-3 mb-6 h-auto p-1 text-xs sm:text-sm">
+                <TabsTrigger value="basic" className="flex items-center justify-center gap-1 sm:gap-2 py-1.5 sm:py-2 whitespace-normal text-center leading-tight">
+                    <Info className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
+                    <span>Basic Info</span>
                 </TabsTrigger>
-                <TabsTrigger value="images" className="flex items-center gap-2" disabled={!isBasicValid}>
-                    <ImageIcon className="h-4 w-4" />
-                    Images
+                <TabsTrigger value="images" className="flex items-center justify-center gap-1 sm:gap-2 py-1.5 sm:py-2 whitespace-normal text-center leading-tight" disabled={!isBasicValid}>
+                    <ImageIcon className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
+                    <span>Images</span>
                 </TabsTrigger>
                 <TabsTrigger
                     value="payment"
-                    className="flex items-center gap-2"
+                    className="flex items-center justify-center gap-1 sm:gap-2 py-1.5 sm:py-2 whitespace-normal text-center leading-tight"
                     disabled={!isFeatured || !isImagesValid}
                 >
                     <CreditCard className="h-4 w-4" />
@@ -431,9 +439,9 @@ export function ProductForm({ initialData, metaData, onSuccess, onAddNew }: Prod
 
                 <TabsContent value="basic" forceMount className="data-[state=inactive]:hidden space-y-6">
                     <div className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div className="space-y-2">
-                                <Label htmlFor="v_model">Vehicle Model</Label>
+                                <Label htmlFor="v_model">Vehicle Modal</Label>
                                 <Combobox
                                     name="v_model"
                                     value={selectedVModelId}
@@ -581,7 +589,7 @@ export function ProductForm({ initialData, metaData, onSuccess, onAddNew }: Prod
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label htmlFor="price">Price (LKR)</Label>
                                 <Input
@@ -613,19 +621,37 @@ export function ProductForm({ initialData, metaData, onSuccess, onAddNew }: Prod
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="description">Description</Label>
+                            <div className="flex items-center justify-between">
+                                <Label htmlFor="description">Description</Label>
+                                <span className="text-[10px] text-muted-foreground uppercase tracking-wider">
+                                    No contact details allowed
+                                </span>
+                            </div>
                             <Textarea
                                 id="description"
                                 name="description"
                                 defaultValue={initialData?.description}
                                 rows={3}
-                                onChange={checkValidation}
+                                className={descriptionError ? "border-red-500 focus-visible:ring-red-500" : ""}
+                                onChange={(e) => {
+                                    const error = validateProductDescription(e.target.value)
+                                    setDescriptionError(error)
+                                }}
                             />
+                            {descriptionError ? (
+                                <p className="text-red-500 text-xs font-medium animate-in fade-in slide-in-from-top-1">
+                                    {descriptionError}
+                                </p>
+                            ) : (
+                                <p className="text-[10px] text-muted-foreground">
+                                    Strictly prohibited: Phone numbers, emails, addresses, or postal codes.
+                                </p>
+                            )}
                         </div>
 
                         <div className="space-y-4 border-t pt-4">
                             <Label className="text-sm font-semibold">Categorization (Tags)</Label>
-                            <div className="grid grid-cols-3 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                 <div className="space-y-2 text-xs">
                                     <Label className="text-[10px] uppercase text-muted-foreground">Primary Tag *</Label>
                                     <Combobox
@@ -756,7 +782,7 @@ export function ProductForm({ initialData, metaData, onSuccess, onAddNew }: Prod
                 </TabsContent>
 
                 <TabsContent value="images" forceMount className="data-[state=inactive]:hidden space-y-6">
-                    <div className="grid grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                         {[
                             { num: 1, ref: file1Ref, key: 'img1' },
                             { num: 2, ref: file2Ref, key: 'img2' },
