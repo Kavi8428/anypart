@@ -37,43 +37,6 @@ interface ColumnProps {
 
 export const getColumns = ({ onEdit }: ColumnProps): ColumnDef<ProductColumn>[] => [
     {
-        accessorKey: "image_url",
-        header: "Image",
-        cell: ({ row }) => {
-            return (
-                <div className="relative h-12 w-12 overflow-hidden rounded-md border">
-                    <Image
-                        src={row.original.image_url || "/placeholder-product.png"}
-                        alt={row.original.p_name}
-                        fill
-                        className="object-cover"
-                        unoptimized
-                    />
-                </div>
-            )
-        },
-    },
-    {
-        accessorKey: "p_name",
-        header: "Product Name",
-    },
-    {
-        accessorKey: "is_featured",
-        header: "Featured",
-        cell: ({ row }) => {
-            const isFeatured = row.original.is_featured === 1
-            return (
-                <div className="flex items-center justify-center">
-                    {isFeatured ? (
-                        <Badge className="bg-yellow-500 hover:bg-yellow-600 text-white">Featured</Badge>
-                    ) : (
-                        <span className="text-muted-foreground text-xs">-</span>
-                    )}
-                </div>
-            )
-        },
-    },
-    {
         accessorKey: "v_brand",
         header: "Brand",
         cell: ({ row }) => (
@@ -88,6 +51,13 @@ export const getColumns = ({ onEdit }: ColumnProps): ColumnDef<ProductColumn>[] 
         accessorKey: "v_year",
         header: "Year",
     },
+    {
+        accessorKey: "p_name",
+        header: "Product Name",
+    },
+
+    
+
     {
         accessorKey: "price",
         header: "Price",
@@ -109,6 +79,41 @@ export const getColumns = ({ onEdit }: ColumnProps): ColumnDef<ProductColumn>[] 
                 <Badge variant={row.original.condition === "New" ? "default" : "secondary"}>
                     {row.original.condition}
                 </Badge>
+            )
+        },
+    },
+
+    {
+        accessorKey: "is_featured",
+        header: "Featured",
+        cell: ({ row }) => {
+            const isFeatured = row.original.is_featured === 1
+            return (
+                <div className="flex items-center justify-center">
+                    {isFeatured ? (
+                        <Badge className="bg-yellow-500 hover:bg-yellow-600 text-white">Featured</Badge>
+                    ) : (
+                        <span className="text-muted-foreground text-xs">-</span>
+                    )}
+                </div>
+            )
+        },
+    },
+
+    {
+        accessorKey: "image_url",
+        header: "Image",
+        cell: ({ row }) => {
+            return (
+                <div className="relative h-12 w-12 overflow-hidden rounded-md border">
+                    <Image
+                        src={row.original.image_url || "/placeholder-product.png"}
+                        alt={row.original.p_name}
+                        fill
+                        className="object-cover"
+                        unoptimized
+                    />
+                </div>
             )
         },
     },
