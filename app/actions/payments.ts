@@ -19,13 +19,9 @@ export async function generatePayHereParams(amount: number) {
     let merchant_secret = process.env.PAYHERE_SECRET;
 
     if (!merchant_id || !merchant_secret) {
-        if (process.env.NODE_ENV === 'development') {
-            console.warn('PayHere credentials not found. Using mock credentials for development.');
-            merchant_id = "TEST_MERCHANT_ID";
-            merchant_secret = "TEST_SECRET";
-        } else {
-            throw new Error('PayHere credentials not configured');
-        }
+        console.warn('PayHere credentials not found. Using mock credentials for testing.');
+        merchant_id = "TEST_MERCHANT_ID";
+        merchant_secret = "TEST_SECRET";
     }
 
     const order_id = `PAY_${Date.now()}`;
@@ -84,10 +80,7 @@ export async function mockPaymentSuccess(order_id: string) {
     const session = await getSellerSession();
     if (!session) throw new Error('Unauthorized');
 
-    if (process.env.NODE_ENV === 'production') {
-        throw new Error('Mock payments disabled in production');
-    }
-
+    // MOCK_TESTING enabled in production for demo/testing
     const successStatus = await prisma.payment_status.findFirst({
         where: { status: 'Completed' }
     });
@@ -98,7 +91,7 @@ export async function mockPaymentSuccess(order_id: string) {
 
     // Create mock method if not exists for dev
     let methodId = mockMethod?.id;
-    if (!methodId && process.env.NODE_ENV === 'development') {
+    if (!methodId) {
         const newMethod = await prisma.payment_methods.create({
             data: { method: 'MOCK_TESTING' }
         });
